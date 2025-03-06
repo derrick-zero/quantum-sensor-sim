@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Quantum Sensor Sim Visual Demo</title>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+      #overlay {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 1;
+        color: #ffffff;
+        font-family: Arial, sans-serif;
+      }
+      #overlay button {
+        margin-right: 5px;
+        padding: 5px 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="overlay">
+      <button id="start">Start</button>
+      <button id="pause">Pause</button>
+      <span id="timeDisplay">Time: 0 s</span>
+    </div>
+    <!-- Loading Three.js and OrbitControls from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/controls/OrbitControls.js"></script>
+    <!-- Load our application bundle as an ES module -->
+    <script type="module" src="app.ts"></script>
+  </body>
+</html>

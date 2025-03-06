@@ -5,18 +5,22 @@ import { ElectricField } from './electricity/ElectricField';
 import { MagneticField } from './magnetism/MagneticField';
 import { Logger } from './core/Logger';
 
+/**
+ * SimulationEngine orchestrates the simulation by updating sensors,
+ * sensor spheres, and processing interactions among various physics modules.
+ */
 export class SimulationEngine {
   private sensors: Sensor[];
   private sensorSpheres: SensorSphere[];
-  private deltaTime: number; // time step in seconds
+  private deltaTime: number; // Time step in seconds.
   private running: boolean;
   public globalTime: number;
 
   /**
-   * Creates a new simulation engine.
+   * Creates a new simulation engine instance.
    * @param sensors - An array of individual sensors.
    * @param sensorSpheres - An array of sensor spheres.
-   * @param deltaTime - The time step; default is 0.01 seconds.
+   * @param deltaTime - The simulation time step; default is 0.01 seconds.
    */
   constructor(
     sensors: Sensor[] = [],
@@ -48,28 +52,26 @@ export class SimulationEngine {
   }
 
   /**
-   * The main simulation loop.
-   * In a browser demo, consider using requestAnimationFrame for smoother visuals.
+   * Public update method: Advances the simulation by one time step.
+   * Updates sensor spheres and sensors, processes interactions, and advances global time.
    */
-  private loop(): void {
+  public update(): void {
     if (!this.running) return;
 
-    // Advance simulation time.
+    // Advance global simulation time.
     this.globalTime += this.deltaTime;
 
-    // Update sensor spheres.
+    // Update each sensor sphere.
     this.sensorSpheres.forEach(sphere => {
       sphere.update(this.deltaTime);
     });
 
-    // Update individual sensors.
+    // Update each individual sensor.
     this.sensors.forEach(sensor => {
       sensor.update(this.deltaTime);
     });
 
     // Process interactions among sensor spheres.
-    // For now, we simply calculate forces between sensor spheres.
-    // This is a placeholder; you can extend it to compute aggregate forces.
     for (let i = 0; i < this.sensorSpheres.length; i++) {
       for (let j = i + 1; j < this.sensorSpheres.length; j++) {
         this.sensorSpheres[i].calculateForces([this.sensorSpheres[j]]);
@@ -77,17 +79,21 @@ export class SimulationEngine {
       }
     }
 
-    // Process other physics modules (placeholders):
-    // e.g., GravitySimulator.simulate(this.sensors, this.deltaTime, 1);
-    // Electric and Magnetic fields could be computed for a given evaluation point if needed.
-
     // Log simulation time.
     Logger.debug(
       `Simulation time: ${this.globalTime.toFixed(3)} s`,
-      'SimulationEngine.loop'
+      'SimulationEngine.update'
     );
+  }
 
-    // Schedule next update.
+  /**
+   * The main simulation loop.
+   * In a browser demo, you may consider using requestAnimationFrame for smoother updates.
+   */
+  private loop(): void {
+    if (!this.running) return;
+    this.update();
+    // Schedule the next update.
     setTimeout(() => this.loop(), this.deltaTime * 1000);
   }
 
