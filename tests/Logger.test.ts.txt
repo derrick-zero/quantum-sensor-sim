@@ -1,0 +1,100 @@
+import * as fs from 'fs';
+import { Logger, LogLevel } from '../src/core/Logger';
+
+describe('Logger Class Unit Tests', () => {
+  beforeEach(() => {
+    // Reset Logger configuration before each test.
+    Logger.configure({
+      level: LogLevel.INFO,
+      logToFile: false,
+    });
+  });
+
+  test('Should write logs to file when logToFile is enabled', () => {
+    // Save the original property descriptor for fs.appendFile
+    const originalDescriptor = Object.getOwnPropertyDescriptor(fs, 'appendFile');
+
+    // Temporarily redefine fs.appendFile
+    Object.defineProperty(fs, 'appendFile', {
+      configurable: true,
+      writable: true,
+      value: jest.fn((path: fs.PathOrFileDescriptor, data: string | Buffer, callback: (err: NodeJS.ErrnoException | null) => void) => {
+        callback(null);
+      }),
+    });
+
+    // Enable file logging in our Logger
+    Logger.configure({ logToFile: true });
+    Logger.info('Info message');
+
+    // Assert that our mocked appendFile was called
+    const spy = fs.appendFile as unknown as jest.Mock;
+    expect(spy).toHaveBeenCalled();
+
+    // Restore the original fs.appendFile property
+    if (originalDescriptor) {
+      Object.defineProperty(fs, 'appendFile', originalDescriptor);
+    }
+  });
+
+  test('Should log messages at INFO level and above', () => {
+    console.info = jest.fn();
+    console.warn = jest.fn();
+    console.error = jest.fn();
+
+    Logger.info('Info message');
+    Logger.warn('Warning message');
+    Logger.error('Error message');
+
+    expect(console.info).toHaveBeenCalledWith(expect.stringContaining('INFO'));
+    expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('WARN'));
+    expect(console.error).toHaveBeenCalledWith(
+      expect.stringContaining('ERROR')
+    );
+  });
+
+  test('Should not log DEBUG messages when level is INFO', () => {
+    console.debug = jest.fn();
+
+    Logger.debug('Debug message');
+
+    expect(console.debug).not.toHaveBeenCalled();
+  });
+
+  test('Should log DEBUG messages when level is DEBUG', () => {
+    Logger.configure({ level: LogLevel.DEBUG });
+    console.debug = jest.fn();
+
+    Logger.debug('Debug message');
+
+    expect(console.debug).toHaveBeenCalledWith(
+      expect.stringContaining('DEBUG')
+    );
+  });
+
+  test('Should write logs to file when logToFile is enabled', () => {
+    // Spy and mock implementation
+    const appendFileSpy = jest.spyOn(fs, 'appendFile')
+      .mockImplementation((path, data, callback) => {
+        callback(null);
+      });
+
+    Logger.configure({ logToFile: true });
+    Logger.info('Info message');
+
+    expect(appendFileSpy).toHaveBeenCalled();
+
+    // Restore original implementation
+    appendFileSpy.mockRestore();
+  });
+
+  test('Should include context information in logs', () => {
+    console.info = jest.fn();
+
+    Logger.info('Context message', 'TestContext');
+
+    expect(console.info).toHaveBeenCalledWith(
+      expect.stringContaining('[TestContext]')
+    );
+  });
+});

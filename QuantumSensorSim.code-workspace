@@ -1,0 +1,82 @@
+{
+  "extensions": {
+    "recommendations": [
+      "bierner.github-markdown-preview",
+      "christian-kohler.npm-intellisense",
+      "christian-kohler.path-intellisense",
+      "dbaeumer.vscode-eslint",
+      "eamodio.gitlens",
+      "errata-ai.vale-server",
+      "esbenp.prettier-vscode",
+      "github.copilot",
+      "github.remotehub",
+      "ms-azuretools.vscode-docker",
+      "ms-edgedevtools.vscode-edge-devtools",
+      "ms-vscode-remote.remote-wsl",
+      "ms-vscode.copilot-chat",
+      "ms-vscode.copilot-mermaid-diagram",
+      "ms-vscode.powershell",
+      "ms-vsliveshare.vsliveshare",
+      "orta.vscode-jest",
+      "pkief.material-icon-theme",
+      "pkief.material-product-icons",
+      "silofy.hackthebox",
+      "streetsidesoftware.code-spell-checker",
+      "visualstudioexptteam.vscodeintellicode"
+    ]
+  },
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "csharp.format.enable": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "always"
+    },
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    "editor.insertSpaces": true,
+    "editor.tabSize": 2,
+    "eslint.enable": true,
+    "eslint.options": {
+      "configFile": ".eslintrc.json"
+    },
+    "eslint.validate": ["typescript"],
+    "files.associations": {
+      "*.js": "javascript",
+      "*.json": "jsonc",
+      "*.ts": "typescript"
+    },
+    "files.exclude": {
+      "**/coverage": true,
+      "**/dist": true,
+      "**/logs": true,
+      "**/node_modules": true
+    },
+    "jest.enableCodeLens": true,
+    "jest.runMode": {
+      "coverage": true,
+      "deferred": true,
+      "runAllTestsOnStartup": false,
+      "showInlineError": true,
+      "testFileOnly": true,
+      "type": "on-save"
+    },
+    "markdown-mermaid.lightModeTheme": "default",
+    "markdown-preview-github-styles.colorTheme": "light",
+    "markdown.preview.breaks": true,
+    "markdown.preview.fontSize": 14,
+    "markdown.updateLinksOnFileMove.enabled": "always",
+    "markdown.validate.enabled": true,
+    "prettier.requireConfig": true,
+    "terminal.integrated.env.linux": {
+      "PATH": "${workspaceFolder}/node_modules/.bin:${env:PATH}"
+    },
+    "terminal.integrated.env.windows": {
+      "PATH": "${workspaceFolder}/node_modules/.bin;${env:PATH}"
+    },
+    "typescript.tsdk": "node_modules/typescript/lib"
+  }
+}
