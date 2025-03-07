@@ -74,8 +74,10 @@ describe('SensorSphere Tests', () => {
   });
 
   test('computeNetworkCenter returns correct centroid of sensor centers', () => {
+    // Create two test sensor spheres with controlled center updates.
     const sphere1 = new TestSensorSphere('S1', new Vector3(0, 0, 0));
     const sphere2 = new TestSensorSphere('S2', new Vector3(2, 0, 0));
+
     const network = {
       spheres: [sphere1, sphere2],
       computeNetworkCenter: () => {
@@ -115,19 +117,14 @@ describe('SensorSphere Tests', () => {
   });
 
   test('calculateInteractions logs debug messages (placeholder functionality)', () => {
-    // Ensure Logger is set to DEBUG so that debug messages are output.
     Logger.configure({ level: LogLevel.DEBUG, logToFile: false });
     const sphere = new SensorSphere('Sphere1', new Vector3(0, 0, 0), 1, 1);
 
-    // Mock console.debug to capture logged output.
     console.debug = jest.fn();
-
     sphere.calculateInteractions();
 
-    // Verify that console.debug was called.
     expect(console.debug).toHaveBeenCalled();
 
-    // Check that the logged message contains the expected details.
     const loggedMessage = (console.debug as jest.Mock).mock.calls[0][0];
     expect(loggedMessage).toEqual(
       expect.stringContaining(
@@ -155,7 +152,7 @@ describe('SensorSphere Tests', () => {
 
     sphere.vibrate(amplitude, frequency, deltaTime);
 
-    // Check that at least one component has changed.
+    // Check that at least one component of the sensor's position has changed.
     expect(sensor.position.x).not.toEqual(originalPos.x);
     expect(sensor.position.y).not.toEqual(originalPos.y);
     expect(sensor.position.z).not.toEqual(originalPos.z);
@@ -194,5 +191,23 @@ describe('SensorSphere Tests', () => {
     sphere.sensors.forEach(sensor => {
       expect(sensor.state).toBe(SensorState.MALFUNCTION);
     });
+  });
+
+  test('applyImpulse updates sphere velocity appropriately', () => {
+    const sphere = new SensorSphere(
+      'SphereImpulse',
+      new Vector3(0, 0, 0),
+      1,
+      1
+    );
+    // Set a known mass by manually computing (or ensure sensors have default mass 1).
+    sphere.computeMass(); // Let's assume total mass > 0.
+    const initialVelocity = sphere.velocity.clone();
+
+    // Apply an impulse of (1, 0, 0).
+    sphere.applyImpulse(new Vector3(1, 0, 0));
+
+    // New velocity should have changed from the initial velocity.
+    expect(sphere.velocity.x).not.toEqual(initialVelocity.x);
   });
 });

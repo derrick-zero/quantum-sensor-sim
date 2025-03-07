@@ -19,9 +19,42 @@ export class Vector3 {
   }
 
   /**
+   * Returns a new Vector3 with all components equal to zero.
+   */
+  public static zero(): Vector3 {
+    return new Vector3(0, 0, 0);
+  }
+
+  /**
+   * Sets the components of this vector.
+   * @param x - The new x component.
+   * @param y - The new y component.
+   * @param z - The new z component.
+   * @returns This vector.
+   */
+  public set(x: number, y: number, z: number): this {
+    this.x = x;
+    this.y = y;
+    this.z = z;
+    return this;
+  }
+
+  /**
+   * Copies the components of the given vector into this vector.
+   * @param vector - The vector to copy.
+   * @returns This vector.
+   */
+  public copy(vector: Vector3): this {
+    this.x = vector.x;
+    this.y = vector.y;
+    this.z = vector.z;
+    return this;
+  }
+
+  /**
    * Adds another vector to this vector and returns the result.
    * @param other - The vector to add.
-   * @returns The resulting Vector3 after addition.
+   * @returns A new Vector3 representing the sum.
    */
   public add(other: Vector3): Vector3 {
     return new Vector3(this.x + other.x, this.y + other.y, this.z + other.z);
@@ -30,7 +63,7 @@ export class Vector3 {
   /**
    * Subtracts another vector from this vector and returns the result.
    * @param other - The vector to subtract.
-   * @returns The resulting Vector3 after subtraction.
+   * @returns A new Vector3 representing the difference.
    */
   public subtract(other: Vector3): Vector3 {
     return new Vector3(this.x - other.x, this.y - other.y, this.z - other.z);
@@ -38,8 +71,8 @@ export class Vector3 {
 
   /**
    * Multiplies this vector by a scalar and returns the result.
-   * @param scalar - The scalar value to multiply.
-   * @returns The resulting Vector3 after scalar multiplication.
+   * @param scalar - The scalar value.
+   * @returns A new Vector3 representing the product.
    */
   public multiplyScalar(scalar: number): Vector3 {
     return new Vector3(this.x * scalar, this.y * scalar, this.z * scalar);
@@ -47,15 +80,15 @@ export class Vector3 {
 
   /**
    * Computes the magnitude (length) of the vector.
-   * @returns The magnitude of the vector.
+   * @returns The magnitude (length) of the vector.
    */
   public magnitude(): number {
     return Math.sqrt(this.x ** 2 + this.y ** 2 + this.z ** 2);
   }
 
   /**
-   * Normalizes the vector to have a magnitude of 1.
-   * @returns The normalized Vector3.
+   * Normalizes the vector (scales it to unit length).
+   * @returns A new Vector3 that is normalized.
    * @throws Error if the vector has zero length.
    */
   public normalize(): Vector3 {
@@ -69,7 +102,7 @@ export class Vector3 {
   /**
    * Computes the dot product with another vector.
    * @param other - The other vector.
-   * @returns The dot product of the two vectors.
+   * @returns The dot product between this vector and the other vector.
    */
   public dot(other: Vector3): number {
     return this.x * other.x + this.y * other.y + this.z * other.z;
@@ -78,7 +111,7 @@ export class Vector3 {
   /**
    * Computes the cross product with another vector.
    * @param other - The other vector.
-   * @returns The resulting Vector3 from the cross product.
+   * @returns A new Vector3 representing the cross product.
    */
   public cross(other: Vector3): Vector3 {
     return new Vector3(
@@ -89,9 +122,9 @@ export class Vector3 {
   }
 
   /**
-   * Computes the distance between this vector and another vector.
+   * Computes the distance between this vector and another.
    * @param other - The other vector.
-   * @returns The distance between the two vectors.
+   * @returns The Euclidean distance between the two vectors.
    */
   public distanceTo(other: Vector3): number {
     return Math.sqrt(
@@ -110,8 +143,8 @@ export class Vector3 {
   }
 
   /**
-   * Converts this vector to an array.
-   * @returns An array [x, y, z].
+   * Converts this vector to an array [x, y, z].
+   * @returns An array representation of this vector.
    */
   public toArray(): [number, number, number] {
     return [this.x, this.y, this.z];
@@ -127,10 +160,10 @@ export class Vector3 {
 
   /**
    * Rotates this vector around a given axis by a specified angle using Rodrigues' rotation formula.
-   * The axis should be a non-zero vector; it will be normalized automatically.
-   * @param axis - The axis to rotate around.
+   * The axis should be non-zero; it is normalized automatically.
+   * @param axis - The axis around which to rotate.
    * @param angle - The rotation angle in radians.
-   * @returns A new Vector3 instance representing the rotated vector.
+   * @returns A new Vector3 representing the rotated vector.
    */
   public rotateAroundAxis(axis: Vector3, angle: number): Vector3 {
     // Normalize the rotation axis.

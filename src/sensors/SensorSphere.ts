@@ -51,12 +51,12 @@ export class SensorSphere {
    */
   private initializeSensors(sensorCount: number): void {
     for (let i = 0; i < sensorCount; i++) {
-      // Generate spherical coordinates
+      // Generate spherical coordinates.
       const theta = Math.acos(2 * Math.random() - 1); // Polar angle [0, π]
       const phi = Constants.TWO_PI * Math.random(); // Azimuthal angle [0, 2π]
       const r = this.radius * Math.cbrt(Math.random()); // Uniform distribution within the sphere
 
-      // Convert spherical to Cartesian coordinates
+      // Convert spherical to Cartesian coordinates.
       const x = r * Math.sin(theta) * Math.cos(phi);
       const y = r * Math.sin(theta) * Math.sin(phi);
       const z = r * Math.cos(theta);
@@ -234,5 +234,23 @@ export class SensorSphere {
       'SensorSphere.calculateInteractions'
     );
     // Placeholder for future implementation.
+  }
+
+  /**
+   * Applies an impulse force to the sensor sphere, modifying its velocity.
+   * The impulse is applied as Δv = impulse / mass.
+   * @param force - The impulse force vector.
+   * @throws Error if mass is zero.
+   */
+  public applyImpulse(force: Vector3): void {
+    if (this.mass === 0) {
+      throw new Error('Cannot apply impulse: sphere mass is zero.');
+    }
+    // Apply impulse: Δv = force / mass.
+    this.velocity = this.velocity.add(force.multiplyScalar(1 / this.mass));
+    Logger.debug(
+      `Impulse applied to sphere ${this.id}: ${force.toString()}`,
+      'SensorSphere.applyImpulse'
+    );
   }
 }

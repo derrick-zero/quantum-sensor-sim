@@ -76,7 +76,6 @@ describe('Vector3 Class Unit Tests', () => {
     const vectorA = new Vector3(1, 1, 1);
     const vectorB = new Vector3(4, 5, 6);
     const distance = vectorA.distanceTo(vectorB);
-
     // The correct distance is sqrt(50) ≈ 7.0710678118654755
     expect(distance).toBeCloseTo(7.0710678118654755, 10);
   });
@@ -98,5 +97,40 @@ describe('Vector3 Class Unit Tests', () => {
     const vector = new Vector3(1, 2, 3);
     const string = vector.toString();
     expect(string).toBe('Vector3(1, 2, 3)');
+  });
+
+  // --- Additional tests for newly added utility methods ---
+
+  test('set() updates vector components correctly', () => {
+    const vector = new Vector3();
+    vector.set(5, -3, 2);
+    expect(vector.x).toBe(5);
+    expect(vector.y).toBe(-3);
+    expect(vector.z).toBe(2);
+  });
+
+  test('copy() copies components correctly and returns the same instance', () => {
+    const vector = new Vector3(1, 2, 3);
+    const target = new Vector3();
+    const returnedTarget = target.copy(vector);
+    expect(target).toEqual(vector);
+    expect(returnedTarget).toBe(target);
+  });
+
+  test('static zero() returns a zero vector', () => {
+    const zeroVector = Vector3.zero();
+    expect(zeroVector).toEqual(new Vector3(0, 0, 0));
+  });
+
+  test('rotateAroundAxis rotates vector correctly', () => {
+    // Rotate vector (1, 0, 0) by 90 degrees (π/2) about the z-axis (0,0,1).
+    const vector = new Vector3(1, 0, 0);
+    const axis = new Vector3(0, 0, 1);
+    const angle = Math.PI / 2;
+    const rotated = vector.rotateAroundAxis(axis, angle);
+    // The expected result is approximately (0, 1, 0).
+    expect(rotated.x).toBeCloseTo(0, 5);
+    expect(rotated.y).toBeCloseTo(1, 5);
+    expect(rotated.z).toBeCloseTo(0, 5);
   });
 });
