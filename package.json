@@ -5,12 +5,13 @@
   "scripts": {
     "start": "parcel index.html",
     "build": "rimraf dist .parcel-cache && parcel build index.html",
+    "clean": "rimraf dist .parcel-cache",
     "test": "jest",
     "test:unit": "jest --config jest.config.js",
     "test:integration": "jest --config jest.integration.config.js",
     "lint": "eslint . --ext .ts",
     "format": "prettier --write .",
-    "doc": "typedoc --out docs/api src",
+    "doc": "typedoc --out docs/api src --entryPointStrategy expand",
     "prepare": "husky install"
   },
   "dependencies": {
