@@ -5,7 +5,7 @@ import { Logger } from '../core/Logger';
 import { Constants } from '../core/Constants';
 
 /**
- * Represents a sphere composed of sensors, which can act as a single entity or a collection.
+ * Represents a sphere composed of sensors, which can act as a single entity or a container.
  */
 export class SensorSphere {
   public id: string;
@@ -46,15 +46,15 @@ export class SensorSphere {
   }
 
   /**
-   * Initializes sensors within the sphere, distributing them based on spherical coordinates.
-   * @param sensorCount - The number of sensors to initialize.
+   * Initializes sensors within the sphere using a spherical distribution.
+   * @param sensorCount - Number of sensors to create.
    */
   private initializeSensors(sensorCount: number): void {
     for (let i = 0; i < sensorCount; i++) {
       // Generate spherical coordinates.
-      const theta = Math.acos(2 * Math.random() - 1); // Polar angle [0, π]
-      const phi = Constants.TWO_PI * Math.random(); // Azimuthal angle [0, 2π]
-      const r = this.radius * Math.cbrt(Math.random()); // Uniform distribution within the sphere
+      const theta = Math.acos(2 * Math.random() - 1); // [0, π]
+      const phi = Constants.TWO_PI * Math.random(); // [0, 2π]
+      const r = this.radius * Math.cbrt(Math.random()); // Uniform distribution within sphere volume.
 
       // Convert spherical to Cartesian coordinates.
       const x = r * Math.sin(theta) * Math.cos(phi);
@@ -69,7 +69,7 @@ export class SensorSphere {
   }
 
   /**
-   * Computes the total mass of the sphere based on its sensors.
+   * Computes and updates the total mass of the sphere based on its sensors.
    */
   public computeMass(): void {
     this.mass = this.sensors.reduce(
@@ -79,24 +79,23 @@ export class SensorSphere {
   }
 
   /**
-   * Updates the sphere's velocity, center, and each sensor's position using the sphere's velocity,
-   * and calls each sensor's update method. Also resets acceleration.
-   * @param deltaTime - The time step for the simulation update.
-   * @throws Error if deltaTime is less than or equal to zero.
+   * Updates the sphere's kinematics (velocity, center) and each sensor's state.
+   * @param deltaTime - Time step (s); must be > 0.
+   * @throws Error if deltaTime <= 0.
    */
   public update(deltaTime: number): void {
     if (deltaTime <= 0) {
       throw new Error('Delta time must be greater than zero.');
     }
 
-    // Update the sphere's velocity and center based on its acceleration.
+    // Update sphere's velocity and center.
     this.velocity = this.velocity.add(
       this.acceleration.multiplyScalar(deltaTime)
     );
     this.center = this.center.add(this.velocity.multiplyScalar(deltaTime));
-    this.acceleration = new Vector3(); // Reset acceleration.
+    this.acceleration = new Vector3();
 
-    // Update each sensor's position relative to the sphere's movement and its own dynamics.
+    // Update each sensor's position relative to the sphere's movement.
     for (const sensor of this.sensors) {
       sensor.position = sensor.position.add(
         this.velocity.multiplyScalar(deltaTime)
@@ -106,17 +105,15 @@ export class SensorSphere {
   }
 
   /**
-   * Calculates the net force acting on this sphere due to other spheres and updates acceleration.
-   * @param spheres - An array of other sensor spheres.
+   * Calculates forces due to other sensor spheres (placeholder for integration).
+   * @param spheres - Array of other sensor spheres.
    */
   public calculateForces(spheres: SensorSphere[]): void {
     let netForce = new Vector3();
-
     for (const otherSphere of spheres) {
       if (otherSphere.id !== this.id) {
         const distanceVector = otherSphere.center.subtract(this.center);
         const distance = distanceVector.magnitude();
-
         if (distance > 0) {
           const G = Constants.GRAVITATIONAL_CONSTANT;
           const forceMagnitude =
@@ -124,19 +121,17 @@ export class SensorSphere {
           const forceDirection = distanceVector.normalize();
           const gravitationalForce =
             forceDirection.multiplyScalar(forceMagnitude);
-
           netForce = netForce.add(gravitationalForce);
         }
       }
     }
-
     this.acceleration = this.acceleration.add(
       netForce.multiplyScalar(1 / this.mass)
     );
   }
 
   /**
-   * Adds a sensor to the sphere and recomputes the total mass.
+   * Adds a sensor to the sphere and recomputes mass.
    * @param sensor - The sensor to add.
    */
   public addSensor(sensor: Sensor): void {
@@ -152,8 +147,8 @@ export class SensorSphere {
   }
 
   /**
-   * Removes a sensor from the sphere by its ID and recomputes the total mass.
-   * @param sensorId - The ID of the sensor to remove.
+   * Removes a sensor from the sphere by its ID and recomputes mass.
+   * @param sensorId - The sensor's ID to remove.
    */
   public removeSensor(sensorId: string): void {
     this.sensors = this.sensors.filter(sensor => sensor.id !== sensorId);
@@ -165,9 +160,9 @@ export class SensorSphere {
   }
 
   /**
-   * Updates the state of the sphere and optionally propagates it to all sensors.
-   * @param state - The new state to set.
-   * @param propagateToSensors - If true, updates state for all sensors.
+   * Sets the state of the sphere and optionally propagates it to its sensors.
+   * @param state - The new state.
+   * @param propagateToSensors - If true, sets the state for all sensors.
    */
   public setState(
     state: SensorState,
@@ -182,10 +177,10 @@ export class SensorSphere {
   }
 
   /**
-   * Rotates the sphere (and its sensors) around a given axis by a specified angle.
+   * Rotates the sphere and its sensors around a specified axis by the given angle.
    * @param axis - The axis to rotate around.
    * @param angle - The rotation angle in radians.
-   * @throws Error if axis or angle is invalid.
+   * @throws Error if inputs are invalid.
    */
   public rotate(axis: Vector3, angle: number): void {
     if (!axis || angle === undefined) {
@@ -199,11 +194,11 @@ export class SensorSphere {
   }
 
   /**
-   * Applies vibration effects to all sensors in the sphere.
+   * Applies a vibration effect to all sensors in the sphere.
    * @param amplitude - The vibration amplitude as a Vector3.
    * @param frequency - The vibration frequency as a Vector3.
-   * @param deltaTime - The time step for computing the vibration offset.
-   * @throws Error if amplitude, frequency, or deltaTime is invalid.
+   * @param deltaTime - The time step for the vibration offset; must be positive.
+   * @throws Error if parameters are invalid.
    */
   public vibrate(
     amplitude: Vector3,
@@ -225,20 +220,18 @@ export class SensorSphere {
   }
 
   /**
-   * Calculates interactions among sensors in the sphere.
-   * Currently, this method logs a debug message as a placeholder.
+   * Placeholder: Calculates and logs interactions among sensors.
    */
   public calculateInteractions(): void {
     Logger.debug(
       `Calculating interactions among ${this.sensors.length} sensors in sphere ${this.id}.`,
       'SensorSphere.calculateInteractions'
     );
-    // Placeholder for future implementation.
   }
 
   /**
-   * Applies an impulse force to the sensor sphere, modifying its velocity.
-   * The impulse is applied as Δv = impulse / mass.
+   * Applies an impulse force to the sensor sphere, altering its velocity.
+   * Δv = impulse / mass.
    * @param force - The impulse force vector.
    * @throws Error if mass is zero.
    */
@@ -246,7 +239,6 @@ export class SensorSphere {
     if (this.mass === 0) {
       throw new Error('Cannot apply impulse: sphere mass is zero.');
     }
-    // Apply impulse: Δv = force / mass.
     this.velocity = this.velocity.add(force.multiplyScalar(1 / this.mass));
     Logger.debug(
       `Impulse applied to sphere ${this.id}: ${force.toString()}`,

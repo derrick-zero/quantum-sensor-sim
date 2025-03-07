@@ -6,6 +6,7 @@ import { Logger, LogLevel } from '../src/core/Logger';
 
 describe('SimulationEngine Tests', () => {
   beforeAll(() => {
+    // Configure Logger for debugging.
     Logger.configure({ level: LogLevel.DEBUG, logToFile: false });
   });
 
@@ -25,6 +26,7 @@ describe('SimulationEngine Tests', () => {
     engine.start();
     const initialTime = engine.globalTime;
     engine.update();
+    // Expect globalTime to advance by 0.05 seconds.
     expect(engine.globalTime).toBeCloseTo(initialTime + 0.05, 5);
     engine.pause();
   });
@@ -33,7 +35,7 @@ describe('SimulationEngine Tests', () => {
     const engine = new SimulationEngine([], [], 0.05);
     const initialTime = engine.globalTime;
     engine.update();
-    // Since engine is not running, globalTime should remain unchanged.
+    // Since engine is not running, globalTime should not change.
     expect(engine.globalTime).toBe(initialTime);
   });
 
@@ -66,6 +68,7 @@ describe('SimulationEngine Tests', () => {
     (sensor1 as any).radius = 0.5;
     (sensor2 as any).radius = 0.5;
 
+    // Set velocities toward each other.
     sensor1.velocity = new Vector3(-1, 0, 0);
     sensor2.velocity = new Vector3(1, 0, 0);
 
@@ -81,10 +84,45 @@ describe('SimulationEngine Tests', () => {
     expect(sensor2.velocity.x).not.toEqual(initialV2.x);
   });
 
-  // New Tests for Container Boundary and Additional Features:
+  test('collision detection: sensors moving apart do not trigger collision response', () => {
+    // Create two sensors that are close but moving in the same direction.
+    const sensor1 = new Sensor(
+      'S1',
+      new Vector3(-0.3, 0, 0),
+      new Vector3(),
+      1,
+      1
+    );
+    const sensor2 = new Sensor(
+      'S2',
+      new Vector3(0.3, 0, 0),
+      new Vector3(),
+      1,
+      1
+    );
+    (sensor1 as any).radius = 0.5;
+    (sensor2 as any).radius = 0.5;
+
+    // Both sensors moving upward.
+    sensor1.velocity = new Vector3(0, 1, 0);
+    sensor2.velocity = new Vector3(0, 1, 0);
+
+    const engine = new SimulationEngine([sensor1, sensor2], [], 0.1);
+    const initialV1 = sensor1.velocity.clone();
+    const initialV2 = sensor2.velocity.clone();
+
+    engine.start();
+    engine.update();
+    engine.pause();
+
+    expect(sensor1.velocity.x).toEqual(initialV1.x);
+    expect(sensor1.velocity.y).toEqual(initialV1.y);
+    expect(sensor2.velocity.x).toEqual(initialV2.x);
+    expect(sensor2.velocity.y).toEqual(initialV2.y);
+  });
 
   test('handleContainerCollision: sensor outside container is repositioned and velocity reflected', () => {
-    // Create a sensor outside a container.
+    // Create a sensor outside the container boundary.
     const sensor = new Sensor(
       'S1',
       new Vector3(6, 0, 0),
@@ -92,29 +130,24 @@ describe('SimulationEngine Tests', () => {
       1,
       1
     );
-    // Set sensor radius to 0.2.
     (sensor as any).radius = 0.2;
-    // Create a container sensor sphere centered at origin with radius 5.
+    // Create a container sensor sphere with center at origin and radius 5.
     const container = new SensorSphere(
       'Container',
       new Vector3(0, 0, 0),
       5,
       10
     );
-
     const engine = new SimulationEngine([sensor], [container], 0.1);
 
-    // Run one update cycle; sensor should be repositioned.
     engine.start();
     engine.update();
     engine.pause();
 
-    // After update, sensor position should be at most container.radius from container center.
+    // Sensor should be repositioned within the container boundary.
     const distance = sensor.position.distanceTo(container.center);
     expect(distance).toBeLessThanOrEqual(container.radius + 0.001);
-
-    // Check that sensor velocity has been reflected (i.e., its x component should have reversed sign if it was moving outward)
-    // If sensor started moving outward, after bouncing, the x component should be negative.
+    // Expect the velocity to be reflected (if originally moving outward, x should be reversed).
     expect(sensor.velocity.x).toBeLessThan(0);
   });
 
@@ -137,13 +170,13 @@ describe('SimulationEngine Tests', () => {
   test('randomize method randomizes sensor positions and velocities', () => {
     const sensor = new Sensor('S1', new Vector3(0, 0, 0), new Vector3());
     const engine = new SimulationEngine([sensor], [], 0.05);
-    const originalPos = sensor.position.clone();
-    const originalVel = sensor.velocity.clone();
+    const origPos = sensor.position.clone();
+    const origVel = sensor.velocity.clone();
 
     engine.randomize();
 
-    expect(sensor.position.x).not.toEqual(originalPos.x);
-    expect(sensor.velocity.x).not.toEqual(originalVel.x);
+    expect(sensor.position.x).not.toEqual(origPos.x);
+    expect(sensor.velocity.x).not.toEqual(origVel.x);
   });
 
   test('toggleTimeReversal reverses simulation time progression', () => {

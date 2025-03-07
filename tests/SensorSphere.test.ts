@@ -3,8 +3,9 @@ import { Sensor } from '../src/sensors/Sensor';
 import { Vector3 } from '../src/core/Vector3';
 import { SensorState } from '../src/sensors/SensorState';
 import { Logger, LogLevel } from '../src/core/Logger';
+import { SimulationEngine } from '../src/SimulationEngine';
 
-// Create a TestSensorSphere subclass to better control update behavior for testing.
+// Create a TestSensorSphere subclass to control update behavior deterministically.
 class TestSensorSphere extends SensorSphere {
   constructor(
     id: string,
@@ -12,18 +13,18 @@ class TestSensorSphere extends SensorSphere {
     radius: number = 1,
     sensorCount: number = 0
   ) {
-    // Pass sensorCount = 0 to avoid auto-filling; sensors can be added manually.
+    // Pass sensorCount = 0 so we can add sensors manually.
     super(id, center, radius, sensorCount);
   }
 
-  // Override update to simply translate the center by (deltaTime, 0, 0)
+  // Override update to simply translate the center by (deltaTime, 0, 0).
   public update(deltaTime: number): void {
     this.center = this.center.add(new Vector3(deltaTime, 0, 0));
   }
 }
 
 describe('SensorSphere Tests', () => {
-  test('Constructor initializes properties and sensors correctly', () => {
+  test('Constructor initializes sensor sphere correctly', () => {
     const sensorCount = 10;
     const sphere = new SensorSphere(
       'Sphere1',
@@ -31,22 +32,21 @@ describe('SensorSphere Tests', () => {
       1,
       sensorCount
     );
-    // Expect auto-generated sensors.
+    // Validate sensor count
     expect(sphere.sensors.length).toBe(sensorCount);
-    // Compute mass: assuming each sensor has default mass of 1.
+    // Compute mass; assume each sensor has mass 1 (default from Sensor)
     sphere.computeMass();
     expect(sphere.mass).toBeCloseTo(sensorCount * 1, 5);
   });
 
-  test('update method updates center and sensors positions', () => {
-    // Create a SensorSphere with sensorCount = 0.
+  test('update method updates center and sensor positions', () => {
     const sphere = new SensorSphere('TestSphere', new Vector3(1, 1, 1), 1, 0);
-    // Manually add two sensors.
+    // Add sensors manually
     const sensor1 = new Sensor('S1', new Vector3(0, 0, 0));
     const sensor2 = new Sensor('S2', new Vector3(2, 2, 2));
     sphere.sensors.push(sensor1, sensor2);
 
-    // Set sphere velocity to (1, 0, 0) and zero acceleration.
+    // Set sphere motion parameters.
     sphere.velocity = new Vector3(1, 0, 0);
     sphere.acceleration = new Vector3();
 
@@ -54,16 +54,16 @@ describe('SensorSphere Tests', () => {
     const initialSensor1Pos = sensor1.position.clone();
     const initialSensor2Pos = sensor2.position.clone();
 
-    sphere.update(2); // dt = 2 seconds.
+    sphere.update(2); // dt = 2 sec.
 
-    // Sphere center should move by (2, 0, 0).
+    // Expect sphere center to shift by (2, 0, 0)
     expect(sphere.center.x).toBeCloseTo(initialCenter.x + 2, 5);
-    // Each sensor's position should also move by (2, 0, 0).
+    // Each sensor's position should also advance by (2, 0, 0) due to sphere translation.
     expect(sensor1.position.x).toBeCloseTo(initialSensor1Pos.x + 2, 5);
     expect(sensor2.position.x).toBeCloseTo(initialSensor2Pos.x + 2, 5);
   });
 
-  test('update method throws an error for non-positive deltaTime', () => {
+  test('update method throws error for non-positive deltaTime', () => {
     const sphere = new SensorSphere('TestSphere', new Vector3(1, 1, 1), 1, 0);
     expect(() => sphere.update(0)).toThrow(
       'Delta time must be greater than zero.'
@@ -74,10 +74,9 @@ describe('SensorSphere Tests', () => {
   });
 
   test('computeNetworkCenter returns correct centroid of sensor centers', () => {
-    // Create two test sensor spheres with controlled center updates.
+    // Use TestSensorSphere for controlled update.
     const sphere1 = new TestSensorSphere('S1', new Vector3(0, 0, 0));
     const sphere2 = new TestSensorSphere('S2', new Vector3(2, 0, 0));
-
     const network = {
       spheres: [sphere1, sphere2],
       computeNetworkCenter: () => {
@@ -88,15 +87,13 @@ describe('SensorSphere Tests', () => {
         return sum.multiplyScalar(1 / network.spheres.length);
       },
     };
-
     const centroid = network.computeNetworkCenter();
-    // For centers at (0,0,0) and (2,0,0), the centroid should be (1,0,0).
     expect(centroid.x).toBeCloseTo(1, 5);
     expect(centroid.y).toBeCloseTo(0, 5);
     expect(centroid.z).toBeCloseTo(0, 5);
   });
 
-  test('addSphere and removeSphere manage sensors correctly', () => {
+  test('addSensor and removeSensor manage sensors within the sphere', () => {
     const networkSphere = new SensorSphere(
       'NetworkSphere',
       new Vector3(0, 0, 0),
@@ -105,38 +102,32 @@ describe('SensorSphere Tests', () => {
     );
     const sphere1 = new TestSensorSphere('S1', new Vector3(1, 1, 1));
     const sphere2 = new TestSensorSphere('S2', new Vector3(2, 2, 2));
-
-    // Cast TestSensorSphere as Sensor for testing purposes.
+    // Cast for testing purposes.
     networkSphere.addSensor(sphere1 as unknown as Sensor);
     networkSphere.addSensor(sphere2 as unknown as Sensor);
     expect(networkSphere.sensors.length).toBe(2);
-
-    // Remove sensor with id "S1"
     networkSphere.removeSensor('S1');
     expect(networkSphere.sensors.length).toBe(1);
   });
 
-  test('calculateInteractions logs debug messages (placeholder functionality)', () => {
+  test('calculateInteractions logs expected debug message', () => {
     Logger.configure({ level: LogLevel.DEBUG, logToFile: false });
-    const sphere = new SensorSphere('Sphere1', new Vector3(0, 0, 0), 1, 1);
-
     console.debug = jest.fn();
+    const sphere = new SensorSphere('Sphere1', new Vector3(0, 0, 0), 1, 1);
     sphere.calculateInteractions();
-
     expect(console.debug).toHaveBeenCalled();
-
-    const loggedMessage = (console.debug as jest.Mock).mock.calls[0][0];
-    expect(loggedMessage).toEqual(
+    const logMsg = (console.debug as jest.Mock).mock.calls[0][0];
+    expect(logMsg).toEqual(
       expect.stringContaining(
         `Calculating interactions among ${sphere.sensors.length} sensors in sphere ${sphere.id}.`
       )
     );
-    expect(loggedMessage).toEqual(
+    expect(logMsg).toEqual(
       expect.stringContaining('SensorSphere.calculateInteractions')
     );
   });
 
-  test('vibrate method applies correct offset to sensors', () => {
+  test('vibrate method applies vibration offset to sensors', () => {
     const sphere = new SensorSphere(
       'SphereVibrate',
       new Vector3(0, 0, 0),
@@ -144,18 +135,14 @@ describe('SensorSphere Tests', () => {
       1
     );
     const sensor = sphere.sensors[0];
-    const originalPos = sensor.position.clone();
-
+    const initPos = sensor.position.clone();
     const amplitude = new Vector3(1, 1, 1);
     const frequency = new Vector3(1, 1, 1);
-    const deltaTime = 0.5;
-
-    sphere.vibrate(amplitude, frequency, deltaTime);
-
-    // Check that at least one component of the sensor's position has changed.
-    expect(sensor.position.x).not.toEqual(originalPos.x);
-    expect(sensor.position.y).not.toEqual(originalPos.y);
-    expect(sensor.position.z).not.toEqual(originalPos.z);
+    const dt = 0.5;
+    sphere.vibrate(amplitude, frequency, dt);
+    expect(sensor.position.x).not.toEqual(initPos.x);
+    expect(sensor.position.y).not.toEqual(initPos.y);
+    expect(sensor.position.z).not.toEqual(initPos.z);
   });
 
   test('vibrate method throws error with invalid deltaTime', () => {
@@ -174,19 +161,27 @@ describe('SensorSphere Tests', () => {
 
   test('rotate method throws error for invalid inputs', () => {
     const sphere = new SensorSphere('SphereRotate', new Vector3(0, 0, 0), 1, 1);
-    expect(() => {
-      sphere.rotate(null as unknown as Vector3, Math.PI / 2);
-    }).toThrow('Axis and angle must be provided.');
-    expect(() => {
-      sphere.rotate(new Vector3(0, 1, 0), undefined as unknown as number);
-    }).toThrow('Axis and angle must be provided.');
+    expect(() =>
+      sphere.rotate(null as unknown as Vector3, Math.PI / 2)
+    ).toThrow('Axis and angle must be provided.');
+    expect(() =>
+      sphere.rotate(new Vector3(0, 1, 0), undefined as unknown as number)
+    ).toThrow('Axis and angle must be provided.');
   });
 
-  test('setState propagates state to all sensors when propagateToSensors is true', () => {
-    const sphere = new SensorSphere('SphereState', new Vector3(0, 0, 0), 1, 2);
-    // Initially set sensors to ACTIVE.
-    sphere.sensors.forEach(sensor => sensor.setState(SensorState.ACTIVE));
+  test('rotate method rotates sensors correctly', () => {
+    const sphere = new SensorSphere('SphereRotate', new Vector3(0, 0, 0), 1, 1);
+    const sensor = new Sensor('S1', new Vector3(1, 0, 0));
+    sphere.sensors.push(sensor);
+    sphere.rotate(new Vector3(0, 0, 1), Math.PI / 2);
+    // Sensor should now be near (0,1,0) relative to sphere.center.
+    expect(sensor.position.x).toBeCloseTo(0, 5);
+    expect(sensor.position.y).toBeCloseTo(1, 5);
+  });
 
+  test('setState propagates state to all sensors when flag is true', () => {
+    const sphere = new SensorSphere('SphereState', new Vector3(0, 0, 0), 1, 2);
+    sphere.sensors.forEach(sensor => sensor.setState(SensorState.ACTIVE));
     sphere.setState(SensorState.MALFUNCTION, true);
     sphere.sensors.forEach(sensor => {
       expect(sensor.state).toBe(SensorState.MALFUNCTION);
@@ -200,14 +195,39 @@ describe('SensorSphere Tests', () => {
       1,
       1
     );
-    // Set a known mass by manually computing (or ensure sensors have default mass 1).
-    sphere.computeMass(); // Let's assume total mass > 0.
-    const initialVelocity = sphere.velocity.clone();
-
-    // Apply an impulse of (1, 0, 0).
+    sphere.computeMass();
+    const initVel = sphere.velocity.clone();
     sphere.applyImpulse(new Vector3(1, 0, 0));
+    expect(sphere.velocity.x).not.toEqual(initVel.x);
+  });
 
-    // New velocity should have changed from the initial velocity.
-    expect(sphere.velocity.x).not.toEqual(initialVelocity.x);
+  // Test for container collision enforcement via SimulationEngine:
+  test('handleContainerCollision properly repositions sensor outside container and reflects its velocity', () => {
+    // Create a sensor positioned outside the container.
+    const sensor = new Sensor(
+      'S1',
+      new Vector3(6, 0, 0),
+      new Vector3(1, 0, 0),
+      1,
+      1
+    );
+    // Use default sensor radius (assume 0.2).
+    const container = new SensorSphere(
+      'Container',
+      new Vector3(0, 0, 0),
+      5,
+      10
+    );
+    const engine = new SimulationEngine([sensor], [container], 0.1);
+
+    engine.start();
+    engine.update();
+    engine.pause();
+
+    // After update, sensor must be within container.
+    const dist = sensor.position.distanceTo(container.center);
+    expect(dist).toBeLessThanOrEqual(container.radius + 0.001);
+    // Velocity should be reflected (if originally outward, x should reverse).
+    expect(sensor.velocity.x).toBeLessThan(0);
   });
 });

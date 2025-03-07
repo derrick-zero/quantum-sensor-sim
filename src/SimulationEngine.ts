@@ -19,12 +19,11 @@ export class SimulationEngine {
   public globalTime: number;
   private timeReversed: boolean;
 
-  // For reset/randomize, store initial states.
+  // Snapshots of initial states for reset functionality.
   private initialSensorsState: Sensor[];
   private initialSensorSpheresState: SensorSphere[];
 
-  // We'll designate one sensor sphere as the container.
-  // For simplicity, assume the first sensor sphere is the container.
+  // Designated container: we'll use the first sensor sphere if available.
   public container: SensorSphere | null;
 
   constructor(
@@ -40,16 +39,15 @@ export class SimulationEngine {
     this.timeReversed = false;
     this.container = sensorSpheres.length > 0 ? sensorSpheres[0] : null;
 
-    // Clone initial states for reset.
+    // Save copies of the initial state for reset purposes.
     this.initialSensorsState = sensors.map(s => this.cloneSensor(s));
     this.initialSensorSpheresState = sensorSpheres.map(ss =>
       this.cloneSensorSphere(ss)
     );
   }
 
-  // Helper for cloning a sensor.
+  // Helper method for shallow cloning a Sensor.
   private cloneSensor(sensor: Sensor): Sensor {
-    // Create a new Sensor with same basic parameters.
     return new Sensor(
       sensor.id,
       sensor.position.clone(),
@@ -60,9 +58,9 @@ export class SimulationEngine {
     );
   }
 
-  // Helper for cloning a sensor sphere.
+  // Helper method for shallow cloning a SensorSphere.
   private cloneSensorSphere(sphere: SensorSphere): SensorSphere {
-    // Note: For simplicity, we clone using basic parameters.
+    // Note: For simplicity, we clone basic parameters.
     return new SensorSphere(
       sphere.id,
       sphere.center.clone(),
@@ -90,10 +88,19 @@ export class SimulationEngine {
   }
 
   /**
-   * Toggles time reversal.
+   * Toggles time reversal. Additionally, inverts the velocities of all sensors and sensor spheres,
+   * so that the simulation visually rewinds.
    */
   public toggleTimeReversal(): void {
     this.timeReversed = !this.timeReversed;
+    // Invert velocities for all sensors.
+    this.sensors.forEach(sensor => {
+      sensor.velocity = sensor.velocity.multiplyScalar(-1);
+    });
+    // Invert velocities for all sensor spheres.
+    this.sensorSpheres.forEach(sphere => {
+      sphere.velocity = sphere.velocity.multiplyScalar(-1);
+    });
     Logger.info(
       `Time reversal toggled. Now ${
         this.timeReversed ? 'reversed' : 'forward'
@@ -103,7 +110,8 @@ export class SimulationEngine {
   }
 
   /**
-   * Resets the simulation engine to its initial state.
+   * Resets the simulation engine to its initial state:
+   * Restores globalTime and re-clones sensors and sensor spheres from the initial snapshots.
    */
   public reset(): void {
     this.globalTime = 0;
@@ -111,7 +119,7 @@ export class SimulationEngine {
     this.sensorSpheres = this.initialSensorSpheresState.map(ss =>
       this.cloneSensorSphere(ss)
     );
-    // Reassign container if available.
+    // Reassign the container if available.
     this.container =
       this.sensorSpheres.length > 0 ? this.sensorSpheres[0] : null;
     Logger.info('Simulation has been reset.', 'SimulationEngine.reset');
@@ -137,24 +145,27 @@ export class SimulationEngine {
   }
 
   /**
-   * Public update method: Advances the simulation by one time step,
-   * updating sensor spheres, sensors, processing interactions, collisions,
-   * and enforcing container boundaries.
+   * Public update method: Advances the simulation by one time step.
+   * Updates sensor spheres, sensors, collision handling, and container enforcement.
    */
   public update(): void {
     if (!this.running) return;
 
-    // Determine simulation step based on time reversal.
+    // Determine the effective time step (reverse if needed).
     const step = this.timeReversed ? -this.deltaTime : this.deltaTime;
     this.globalTime += step;
 
     // Update sensor spheres.
-    this.sensorSpheres.forEach(sphere => sphere.update(step));
+    this.sensorSpheres.forEach(sphere => {
+      sphere.update(step);
+    });
 
     // Update individual sensors.
-    this.sensors.forEach(sensor => sensor.update(step));
+    this.sensors.forEach(sensor => {
+      sensor.update(step);
+    });
 
-    // Handle sensor-sensor collisions.
+    // Handle sensor-to-sensor collisions.
     this.handleSensorCollisions();
 
     // Process interactions among sensor spheres (placeholder).
@@ -165,7 +176,7 @@ export class SimulationEngine {
       }
     }
 
-    // Enforce container boundary, if a container is defined.
+    // Enforce container boundary: ensure sensors remain inside the container.
     if (this.container) {
       this.sensors.forEach(sensor => {
         this.handleContainerCollision(sensor, this.container!);
@@ -179,8 +190,8 @@ export class SimulationEngine {
   }
 
   /**
-   * Main simulation loop.
-   * In a browser demo, consider using requestAnimationFrame for smoother visuals.
+   * The main simulation loop.
+   * For a smoother visual experience in the browser, consider replacing setTimeout with requestAnimationFrame.
    */
   private loop(): void {
     if (!this.running) return;
@@ -211,7 +222,7 @@ export class SimulationEngine {
   }
 
   /**
-   * Handles collisions between individual sensors using a simple elastic collision model.
+   * Handles collisions among individual sensors using a simple elastic collision model.
    * Assumes each sensor has a "radius" property (defaulting to 0.2 if not defined).
    */
   private handleSensorCollisions(): void {
@@ -269,7 +280,7 @@ export class SimulationEngine {
   }
 
   /**
-   * Checks a sensor against the container boundary and applies a reflective collision response if needed.
+   * Checks a sensor against the container boundary and applies a reflective collision response.
    * @param sensor - The sensor to check.
    * @param container - The sensor sphere acting as a container.
    */
@@ -279,15 +290,14 @@ export class SimulationEngine {
   ): void {
     const distanceFromCenter = sensor.position.distanceTo(container.center);
     if (distanceFromCenter > container.radius) {
-      // Calculate the normal from the container center to the sensor.
+      // Compute normal from container center to sensor.
       const normal = sensor.position.subtract(container.center).normalize();
-      // Reflect sensor velocity: v' = v - 2 * (v ⋅ normal) * normal.
+      // Reflect sensor's velocity: v' = v - 2(v ⋅ normal) * normal.
       const dotProd = sensor.velocity.dot(normal);
-      const reflectedVelocity = sensor.velocity.subtract(
+      sensor.velocity = sensor.velocity.subtract(
         normal.multiplyScalar(2 * dotProd)
       );
-      sensor.velocity = reflectedVelocity;
-      // Reposition sensor onto the container boundary.
+      // Reposition sensor on container boundary.
       sensor.position = container.center.add(
         normal.multiplyScalar(container.radius)
       );
