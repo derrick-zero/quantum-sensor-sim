@@ -27,6 +27,7 @@
     "@commitlint/cli": "^19.7.1",
     "@commitlint/config-conventional": "^13.2.0",
     "@cypress/webpack-preprocessor": "^6.0.2",
+    "@jest/globals": "^29.7.0",
     "@types/jest": "^27.5.2",
     "@types/node": "^16.18.126",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
