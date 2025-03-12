@@ -1,76 +1,97 @@
-// tests/Utils.test.ts
+/// <reference types="jest" />
 
 import { Utils } from '../src/core/Utils';
 import { Vector3 } from '../src/core/Vector3';
 
 describe('Utils', () => {
-  test('generateRandomNumber should return a number within the specified range', () => {
-    const min = 1;
+  test('generateRandomNumber returns a value within the specified range', () => {
+    const min = 5;
     const max = 10;
-    const randomNum = Utils.generateRandomNumber(min, max);
-    expect(randomNum).toBeGreaterThanOrEqual(min);
-    expect(randomNum).toBeLessThanOrEqual(max);
+    for (let i = 0; i < 100; i++) {
+      const value = Utils.generateRandomNumber(min, max);
+      expect(value).toBeGreaterThanOrEqual(min);
+      expect(value).toBeLessThan(max);
+    }
   });
 
-  test('calculateVectorMagnitude should return the correct magnitude of a vector', () => {
-    const vector = new Vector3(3, 4, 0);
-    const magnitude = Utils.calculateVectorMagnitude(vector);
-    expect(magnitude).toBeCloseTo(5);
+  test('calculateVectorMagnitude returns the correct magnitude', () => {
+    const v = new Vector3(3, 4, 0);
+    const mag = Utils.calculateVectorMagnitude(v);
+    expect(mag).toBeCloseTo(5);
   });
 
-  test('normalizeVector should return a normalized vector', () => {
-    const vector = new Vector3(3, 4, 0);
-    const normalized = Utils.normalizeVector(vector);
-    const magnitude = Utils.calculateVectorMagnitude(normalized);
+  test('normalizeVector returns a unit vector', () => {
+    const v = new Vector3(3, 4, 0);
+    const norm = Utils.normalizeVector(v);
+    const magnitude = Utils.calculateVectorMagnitude(norm);
     expect(magnitude).toBeCloseTo(1);
+    expect(norm.x).toBeCloseTo(3 / 5);
+    expect(norm.y).toBeCloseTo(4 / 5);
+    expect(norm.z).toBeCloseTo(0);
   });
 
-  test('dotProduct should return the correct dot product of two vectors', () => {
-    const vectorA = new Vector3(1, 2, 3);
-    const vectorB = new Vector3(4, 5, 6);
-    const dot = Utils.dotProduct(vectorA, vectorB);
-    expect(dot).toBe(32);
+  test('normalizeVector throws an error for zero-length vectors', () => {
+    const zeroVec = new Vector3(0, 0, 0);
+    expect(() => Utils.normalizeVector(zeroVec)).toThrow(
+      'Cannot normalize a zero-length vector.'
+    );
   });
 
-  test('crossProduct should return the correct cross product of two vectors', () => {
-    const vectorA = new Vector3(1, 0, 0);
-    const vectorB = new Vector3(0, 1, 0);
-    const cross = Utils.crossProduct(vectorA, vectorB);
-    expect(cross).toEqual(new Vector3(0, 0, 1));
+  test('dotProduct computes the correct dot product', () => {
+    const a = new Vector3(1, 2, 3);
+    const b = new Vector3(4, -5, 6);
+    // 1*4 + 2*(-5) + 3*6 = 4 - 10 + 18 = 12
+    const dot = Utils.dotProduct(a, b);
+    expect(dot).toBeCloseTo(12);
   });
 
-  test('distanceBetweenPoints should return the correct distance between two points', () => {
-    const pointA = new Vector3(0, 0, 0);
-    const pointB = new Vector3(3, 4, 0);
-    const distance = Utils.distanceBetweenPoints(pointA, pointB);
+  test('crossProduct computes the correct cross product', () => {
+    const a = new Vector3(1, 0, 0);
+    const b = new Vector3(0, 1, 0);
+    const cross = Utils.crossProduct(a, b);
+    // Expected cross product is (0,0,1)
+    expect(cross.x).toBeCloseTo(0);
+    expect(cross.y).toBeCloseTo(0);
+    expect(cross.z).toBeCloseTo(1);
+  });
+
+  test('distanceBetweenPoints returns the correct distance', () => {
+    const a = new Vector3(1, 1, 1);
+    const b = new Vector3(4, 5, 1);
+    // Distance = sqrt(3^2 + 4^2 + 0^2) = 5
+    const distance = Utils.distanceBetweenPoints(a, b);
     expect(distance).toBeCloseTo(5);
   });
 
-  test('clamp should return the value clamped between the specified range', () => {
-    expect(Utils.clamp(5, 1, 10)).toBe(5);
-    expect(Utils.clamp(0, 1, 10)).toBe(1);
-    expect(Utils.clamp(15, 1, 10)).toBe(10);
+  test('clamp returns the correct clamped value', () => {
+    expect(Utils.clamp(5, 0, 10)).toEqual(5);
+    expect(Utils.clamp(-3, 0, 10)).toEqual(0);
+    expect(Utils.clamp(15, 0, 10)).toEqual(10);
   });
 
-  test('lerp should return the linearly interpolated value', () => {
-    expect(Utils.lerp(0, 10, 0.5)).toBe(5);
-    expect(Utils.lerp(0, 10, 1)).toBe(10);
-    expect(Utils.lerp(0, 10, 0)).toBe(0);
+  test('lerp computes the correct interpolated value', () => {
+    expect(Utils.lerp(0, 10, 0)).toEqual(0);
+    expect(Utils.lerp(0, 10, 1)).toEqual(10);
+    expect(Utils.lerp(0, 10, 0.5)).toEqual(5);
   });
 
-  test('angleBetweenVectors should return the correct angle between two vectors', () => {
-    const vectorA = new Vector3(1, 0, 0);
-    const vectorB = new Vector3(0, 1, 0);
-    const angle = Utils.angleBetweenVectors(vectorA, vectorB);
-    expect(angle).toBeCloseTo(Math.PI / 2);
+  test('angleBetweenVectors computes the correct angle', () => {
+    const a = new Vector3(1, 0, 0);
+    const b = new Vector3(1, 0, 0);
+    // Angle between identical vectors should be 0
+    expect(Utils.angleBetweenVectors(a, b)).toBeCloseTo(0);
+    const c = new Vector3(0, 1, 0);
+    // Angle between perpendicular vectors should be π/2
+    expect(Utils.angleBetweenVectors(a, c)).toBeCloseTo(Math.PI / 2);
   });
 
-  test('projection should return the correct projection of vectorA onto vectorB', () => {
-    const vectorA = new Vector3(1, 2, 3);
-    const vectorB = new Vector3(4, 5, 6);
-    const projection = Utils.projection(vectorA, vectorB);
-    expect(projection.x).toBeCloseTo(1.6623376623376625);
-    expect(projection.y).toBeCloseTo(2.0779220779220777);
-    expect(projection.z).toBeCloseTo(2.4935064935064934);
+  test('projection computes the correct projection', () => {
+    const a = new Vector3(2, 2, 2);
+    const b = new Vector3(1, 0, 0);
+    // Projection of (2,2,2) onto (1,0,0) should be (2,0,0)
+    const proj = Utils.projection(a, b);
+    expect(proj.x).toBeCloseTo(2);
+    expect(proj.y).toBeCloseTo(0);
+    expect(proj.z).toBeCloseTo(0);
   });
 });

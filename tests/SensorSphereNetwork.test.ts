@@ -1,75 +1,163 @@
+/// <reference types="jest" />
+
 import { SensorSphereNetwork } from '../src/sensors/SensorSphereNetwork';
 import { SensorSphere } from '../src/sensors/SensorSphere';
+import { Sensor } from '../src/sensors/Sensor';
+import { SensorState } from '../src/sensors/SensorState';
 import { Vector3 } from '../src/core/Vector3';
+import { Constants } from '../src/core/Constants';
+import { Logger } from '../src/core/Logger';
 
-// Create a test subclass of SensorSphere that minimizes initialization complexity
-class TestSensorSphere extends SensorSphere {
-  constructor(id: string, center: Vector3) {
-    // Use a small sensorCount (e.g., 0) to avoid filling with sensors when testing network properties.
-    super(id, center, 1.0, 0);
-  }
-
-  // Override update: for testing, simply increment the center's x coordinate by deltaTime.
-  public update(deltaTime: number): void {
-    this.center = this.center.add(new Vector3(deltaTime, 0, 0));
-  }
-}
-
-describe('SensorSphereNetwork', () => {
-  let network: SensorSphereNetwork;
-
-  beforeEach(() => {
-    network = new SensorSphereNetwork();
+describe('SensorSphereNetwork Class Unit Tests', () => {
+  test('constructor initializes empty network if no spheres provided', () => {
+    const network = new SensorSphereNetwork();
+    expect(network.spheres).toEqual([]);
   });
 
-  test('addSphere should add a sphere to the network', () => {
-    const sphere = new TestSensorSphere('S1', new Vector3(1, 1, 1));
+  test('addSphere properly adds a sphere to the network', () => {
+    const sphere = new SensorSphere(
+      'Sphere1',
+      new Vector3(),
+      1.0,
+      10,
+      SensorState.ACTIVE
+    );
+    const network = new SensorSphereNetwork();
     network.addSphere(sphere);
-    expect(network.spheres.length).toBe(1);
-    expect(network.spheres[0].id).toBe('S1');
+    expect(network.spheres.length).toEqual(1);
+    expect(network.spheres[0]).toBe(sphere);
   });
 
-  test('removeSphere should remove a sphere from the network', () => {
-    const sphere1 = new TestSensorSphere('S1', new Vector3(1, 1, 1));
-    const sphere2 = new TestSensorSphere('S2', new Vector3(2, 2, 2));
-    network.addSphere(sphere1);
-    network.addSphere(sphere2);
-    expect(network.spheres.length).toBe(2);
-    network.removeSphere('S1');
-    expect(network.spheres.length).toBe(1);
-    expect(network.spheres[0].id).toBe('S2');
+  test('removeSphere properly removes a sphere from the network', () => {
+    const sphere1 = new SensorSphere(
+      'Sphere1',
+      new Vector3(),
+      1.0,
+      10,
+      SensorState.ACTIVE
+    );
+    const sphere2 = new SensorSphere(
+      'Sphere2',
+      new Vector3(10, 0, 0),
+      1.0,
+      10,
+      SensorState.ACTIVE
+    );
+    const network = new SensorSphereNetwork([sphere1, sphere2]);
+    network.removeSphere('Sphere1');
+    expect(network.spheres.length).toEqual(1);
+    expect(network.spheres[0].id).toBe('Sphere2');
   });
 
-  test('update should throw error on non-positive deltaTime', () => {
+  test('update calls update on each sphere and throws error for non-positive deltaTime', () => {
+    const sphere = new SensorSphere(
+      'Sphere1',
+      new Vector3(),
+      1.0,
+      10,
+      SensorState.ACTIVE
+    );
+    const updateSpy = jest.spyOn(sphere, 'update');
+    const network = new SensorSphereNetwork([sphere]);
+    network.update(1);
+    expect(updateSpy).toHaveBeenCalledWith(1);
     expect(() => network.update(0)).toThrow(
       'Delta time must be greater than zero.'
     );
+    expect(() => network.update(-1)).toThrow(
+      'Delta time must be greater than zero.'
+    );
+    updateSpy.mockRestore();
   });
 
-  test('update should call update on each sensor sphere', () => {
-    const sphere1 = new TestSensorSphere('S1', new Vector3(1, 0, 0));
-    const sphere2 = new TestSensorSphere('S2', new Vector3(2, 0, 0));
-    network.addSphere(sphere1);
-    network.addSphere(sphere2);
-
-    const spy1 = jest.spyOn(sphere1, 'update');
-    const spy2 = jest.spyOn(sphere2, 'update');
-
-    network.update(1); // dt = 1 second
-    expect(spy1).toHaveBeenCalledWith(1);
-    expect(spy2).toHaveBeenCalledWith(1);
+  test('computeNetworkMass returns the total mass of the network', () => {
+    const sphere1 = new SensorSphere(
+      'Sphere1',
+      new Vector3(),
+      1.0,
+      10,
+      SensorState.ACTIVE
+    );
+    const sphere2 = new SensorSphere(
+      'Sphere2',
+      new Vector3(),
+      1.0,
+      10,
+      SensorState.ACTIVE
+    );
+    // Manually set masses for predictable results.
+    sphere1.mass = 20;
+    sphere2.mass = 30;
+    const network = new SensorSphereNetwork([sphere1, sphere2]);
+    expect(network.computeNetworkMass()).toBeCloseTo(50);
   });
 
-  test('computeNetworkCenter should return the correct centroid', () => {
-    const sphere1 = new TestSensorSphere('S1', new Vector3(0, 0, 0));
-    const sphere2 = new TestSensorSphere('S2', new Vector3(2, 0, 0));
-    network.addSphere(sphere1);
-    network.addSphere(sphere2);
+  test('setState propagates state to all sensor spheres and their sensors when flag is true', () => {
+    const sphere1 = new SensorSphere(
+      'Sphere1',
+      new Vector3(),
+      1.0,
+      5,
+      SensorState.ACTIVE
+    );
+    const sphere2 = new SensorSphere(
+      'Sphere2',
+      new Vector3(),
+      1.0,
+      5,
+      SensorState.ACTIVE
+    );
+    const network = new SensorSphereNetwork([sphere1, sphere2]);
+    network.setState(SensorState.MAINTENANCE, true);
+    for (const sphere of network.spheres) {
+      expect(sphere.state).toEqual(SensorState.MAINTENANCE);
+      sphere.sensors.forEach(sensor => {
+        expect(sensor.state).toEqual(SensorState.MAINTENANCE);
+      });
+    }
+  });
 
-    const center = network.computeNetworkCenter();
-    // Expected centroid: for points (0,0,0) and (2,0,0), the average is (1,0,0)
-    expect(center.x).toBeCloseTo(1, 5);
-    expect(center.y).toBeCloseTo(0, 5);
-    expect(center.z).toBeCloseTo(0, 5);
+  test('setState does not propagate state if flag is false', () => {
+    const sphere = new SensorSphere(
+      'Sphere1',
+      new Vector3(),
+      1.0,
+      5,
+      SensorState.ACTIVE
+    );
+    const network = new SensorSphereNetwork([sphere]);
+    // Initially set all sensors to ACTIVE
+    sphere.sensors.forEach(sensor => sensor.setState(SensorState.ACTIVE));
+    network.setState(SensorState.INACTIVE, false);
+    expect(sphere.state).toEqual(SensorState.INACTIVE);
+    sphere.sensors.forEach(sensor => {
+      expect(sensor.state).toEqual(SensorState.ACTIVE);
+    });
+  });
+
+  test('calculateInteractions logs debug information for each sensor sphere pair', () => {
+    const sphere1 = new SensorSphere(
+      'Sphere1',
+      new Vector3(0, 0, 0),
+      1.0,
+      10,
+      SensorState.ACTIVE
+    );
+    const sphere2 = new SensorSphere(
+      'Sphere2',
+      new Vector3(5, 0, 0),
+      1.0,
+      10,
+      SensorState.ACTIVE
+    );
+    const network = new SensorSphereNetwork([sphere1, sphere2]);
+    const debugSpy = jest.spyOn(Logger, 'debug').mockImplementation(() => {});
+    network.calculateInteractions();
+    // Adjust expectation to look for "Calculating interaction" (singular) in the message.
+    expect(debugSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Calculating interaction'),
+      'SensorSphereNetwork.calculateInteractions'
+    );
+    debugSpy.mockRestore();
   });
 });

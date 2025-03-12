@@ -10,6 +10,7 @@ import { OrbitControls } from 'three-stdlib';
 
 // Import lil-gui for real-time parameter control.
 import { GUI } from 'lil-gui';
+import { Constants } from './src/core/Constants';
 
 // =====================
 // Three.js Setup
@@ -48,47 +49,56 @@ window.addEventListener('resize', () => {
 // Simulation Engine Setup
 // =====================
 
-// Generate sensors with random positions and velocities.
-const sensors: Sensor[] = [];
-for (let i = 0; i < 20; i++) {
-  const pos = new Vector3(
-    Math.random() * 10 - 5,
-    Math.random() * 10 - 5,
-    Math.random() * 10 - 5
-  );
-  const vel = new Vector3(
-    Math.random() * 2 - 1,
-    Math.random() * 2 - 1,
-    Math.random() * 2 - 1
-  );
-  sensors.push(new Sensor(`S${i}`, pos, vel));
-}
+// Create multiple sensor spheres, each with its own sensors.
+// Define an array of distinct colors for additional sensor spheres.
+const sphereColors = [0xffaa00, 0xaaff00]; // Example colors for SensorSphere 1 & 2.
 
-// Create multiple sensor spheres.
-// The first sphere acts as the container.
 const sensorSpheres: SensorSphere[] = [];
+
+// Create the container sphere (remains visually white).
 const containerSphere = new SensorSphere(
   'Container',
   new Vector3(0, 0, 0),
-  7, // Container radius.
+  7,
   50
 );
 sensorSpheres.push(containerSphere);
 
-// Optionally add additional sensor spheres.
+// Create additional sensor spheres, separated by 10 units.
 for (let i = 1; i < 3; i++) {
-  sensorSpheres.push(
-    new SensorSphere(`Sphere${i}`, new Vector3(i * 5, 0, 0), 3, 20)
+  // Position is now set to (i * 10, 0, 0) for better separation.
+  const sphere = new SensorSphere(
+    `Sphere${i}`,
+    new Vector3(i * 10, 0, 0),
+    3,
+    20
   );
+  sensorSpheres.push(sphere);
 }
 
-// Initialize the SimulationEngine with a 0.05-second time step.
-const engine = new SimulationEngine(sensors, sensorSpheres, 0.05);
+// Aggregate all sensors from these sensor spheres.
+const allSensors: Sensor[] = sensorSpheres.reduce(
+  (acc: Sensor[], sphere: SensorSphere) => acc.concat(sphere.sensors),
+  []
+);
+
+// Initialize the SimulationEngine with the aggregated sensors and sensor spheres.
+const engine = new SimulationEngine(allSensors, sensorSpheres, 0.05);
+
+// Update the engine's update loop to re-aggregate sensors from sensor spheres after each update.
+const originalUpdate = engine.update.bind(engine);
+engine.update = function () {
+  originalUpdate();
+  this['sensors'] = this.sensorSpheres.reduce(
+    (acc: Sensor[], sphere: SensorSphere) => acc.concat(sphere.sensors),
+    []
+  );
+};
 
 // Expose key objects for Cypress tests.
 (window as any).engine = engine;
-(window as any).sensors = sensors;
 (window as any).sensorSpheres = sensorSpheres;
+(window as any).sensors = allSensors;
 
 // =====================
 // GUI Setup with lil-gui
@@ -124,7 +134,7 @@ controlFolder.open();
 // Visual Representation: Sensor Meshes
 // =====================
 // Create meshes for individual sensors using their dynamic properties.
-const sensorMeshes = sensors.map(sensor => {
+const sensorMeshes = allSensors.map(sensor => {
   const geometry = new THREE.SphereGeometry(sensor.radius, 8, 8);
   const material = new THREE.MeshBasicMaterial({ color: sensor.color });
   const mesh = new THREE.Mesh(geometry, material);
@@ -132,11 +142,12 @@ const sensorMeshes = sensors.map(sensor => {
   return { id: sensor.id, mesh };
 });
 
-// Create meshes for sensor spheres (container visualization).
-const sensorSphereMeshes = sensorSpheres.map(sphere => {
+// Create colored wireframe meshes for sensor spheres.
+// Container sphere uses white; additional spheres use colors from sphereColors.
+const sensorSphereMeshes = sensorSpheres.map((sphere, index) => {
   const geometry = new THREE.SphereGeometry(sphere.radius, 16, 16);
   const material = new THREE.MeshBasicMaterial({
-    color: 0xffffff,
+    color: index === 0 ? 0xffffff : sphereColors[index - 1],
     wireframe: true,
     transparent: true,
     opacity: 0.3,
@@ -149,7 +160,7 @@ const sensorSphereMeshes = sensorSpheres.map(sphere => {
 });
 
 // =====================
-// Mouse Interaction: Raycasting for Bumping Container
+// Mouse Interaction: Raycasting for Container Impulse
 // =====================
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
@@ -159,7 +170,7 @@ renderer.domElement.addEventListener('click', event => {
   mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
   raycaster.setFromCamera(mouse, camera);
 
-  // Raycast against the container mesh.
+  // Raycast against the container's mesh (assumed to be the first in sensorSphereMeshes).
   const intersects = raycaster.intersectObject(sensorSphereMeshes[0].mesh);
   if (intersects.length > 0 && containerSphere) {
     const impulse = new Vector3(0, engineControls.impulseStrength, 0);
@@ -178,7 +189,7 @@ function animate() {
   engine.update();
 
   // Update sensor meshes positions.
-  sensors.forEach(sensor => {
+  allSensors.forEach(sensor => {
     const meshEntry = sensorMeshes.find(s => s.id === sensor.id);
     if (meshEntry) {
       meshEntry.mesh.position.set(

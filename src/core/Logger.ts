@@ -21,6 +21,10 @@ interface LoggerConfig {
 
 /**
  * Logger utility for logging messages with different levels and formatting.
+ *
+ * This Logger is designed to be simple and self-contained.
+ * It supports both console logging (with timestamp and context)
+ * and file logging, if enabled.
  */
 export class Logger {
   private static config: LoggerConfig = {
@@ -31,14 +35,14 @@ export class Logger {
 
   /**
    * Configures the logger settings.
-   * @param config - Partial configuration to update.
+   * @param config - A partial configuration to merge with the defaults.
    */
   public static configure(config: Partial<LoggerConfig>): void {
     this.config = { ...this.config, ...config };
   }
 
   /**
-   * Logs a debug message.
+   * Logs a debug message if the logging level is met.
    * @param message - The message to log.
    * @param context - Optional context information.
    */
@@ -74,22 +78,24 @@ export class Logger {
   }
 
   /**
-   * Internal method to log messages based on the logging level.
+   * Internal method to log messages, both to the console and optionally to a file.
    * @param level - The logging level.
    * @param message - The message to log.
-   * @param context - Optional context information.
+   * @param context - Optional context to include.
    */
   private static log(level: LogLevel, message: string, context?: string): void {
+    // Only log if this level is appropriate
     if (level < this.config.level) {
       return;
     }
 
+    // Create timestamp and formatted message
     const timestamp = new Date().toISOString();
     const levelStr = LogLevel[level];
-    const contextStr = context ? `[${context}]` : '';
-    const formattedMessage = `${timestamp} [${levelStr}] ${contextStr} ${message}`;
+    const contextStr = context ? `[${context}] ` : '';
+    const formattedMessage = `${timestamp} [${levelStr}] ${contextStr}${message}`;
 
-    // Log to console
+    // Log to console based on log level
     switch (level) {
       case LogLevel.DEBUG:
         console.debug(formattedMessage);
@@ -105,21 +111,21 @@ export class Logger {
         break;
     }
 
-    // Log to file if enabled
+    // If file logging is enabled, append the message to the log file.
     if (this.config.logToFile) {
       this.writeToFile(formattedMessage);
     }
   }
 
   /**
-   * Writes log messages to a file.
+   * Appends the log message to the configured log file.
    * @param message - The message to write.
    */
   private static writeToFile(message: string): void {
     fs.appendFile(this.config.logFilePath, message + '\n', err => {
       if (err) {
         console.error(
-          `Logger Error: Failed to write to log file: ${err.message}`
+          `Logger Error: Unable to write to log file: ${err.message}`
         );
       }
     });

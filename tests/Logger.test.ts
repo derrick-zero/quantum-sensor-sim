@@ -1,3 +1,5 @@
+/// <reference types="jest" />
+
 import * as fs from 'fs';
 import { Logger, LogLevel } from '../src/core/Logger';
 
@@ -19,7 +21,7 @@ describe('Logger Class Unit Tests', () => {
       level: LogLevel.INFO,
       logToFile: false,
     });
-    // Clear mock calls for fs.appendFile
+    // Clear any previous mock calls.
     (fs.appendFile as unknown as jest.Mock).mockClear();
   });
 
@@ -47,18 +49,14 @@ describe('Logger Class Unit Tests', () => {
 
   test('Should not log DEBUG messages when level is INFO', () => {
     console.debug = jest.fn();
-
     Logger.debug('Debug message');
-
     expect(console.debug).not.toHaveBeenCalled();
   });
 
   test('Should log DEBUG messages when level is DEBUG', () => {
     Logger.configure({ level: LogLevel.DEBUG });
     console.debug = jest.fn();
-
     Logger.debug('Debug message');
-
     expect(console.debug).toHaveBeenCalledWith(
       expect.stringContaining('DEBUG')
     );
@@ -66,11 +64,11 @@ describe('Logger Class Unit Tests', () => {
 
   test('Should include context information in logs', () => {
     console.info = jest.fn();
-
     Logger.info('Context message', 'TestContext');
-
     expect(console.info).toHaveBeenCalledWith(
       expect.stringContaining('[TestContext]')
     );
   });
+
+  // Optional: You could add further tests to verify log message formatting if desired.
 });

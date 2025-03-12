@@ -2,23 +2,31 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Quantum Sensor Sim Visual Demo</title>
     <style>
       body {
         margin: 0;
         overflow: hidden;
+        background-color: #000; /* Black background for optimal contrast */
+        font-family: Arial, sans-serif;
       }
       #overlay {
         position: absolute;
         top: 10px;
         left: 10px;
-        z-index: 1;
-        color: #ffffff;
-        font-family: Arial, sans-serif;
+        z-index: 100;
+        color: #fff;
       }
       #overlay button {
         margin-right: 5px;
         padding: 5px 10px;
+        font-size: 14px;
+        cursor: pointer;
+      }
+      #timeDisplay {
+        font-size: 16px;
+        margin-left: 10px;
       }
     </style>
   </head>
@@ -26,7 +34,7 @@
     <div id="overlay">
       <button id="start">Start</button>
       <button id="pause">Pause</button>
-      <span id="timeDisplay">Time: 0 s</span>
+      <span id="timeDisplay">Time: 0.00 s</span>
     </div>
     <!-- Loading Three.js and OrbitControls from CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>

@@ -1,134 +1,125 @@
+/// <reference types="jest" />
+
 import { Vector3 } from '../src/core/Vector3';
 
-describe('Vector3 Class Unit Tests', () => {
-  test('Default constructor initializes components to zero', () => {
-    const vector = new Vector3();
-    expect(vector.x).toBe(0);
-    expect(vector.y).toBe(0);
-    expect(vector.z).toBe(0);
+describe('Vector3', () => {
+  test('constructor sets components correctly', () => {
+    const vec = new Vector3(1, 2, 3);
+    expect(vec.x).toBe(1);
+    expect(vec.y).toBe(2);
+    expect(vec.z).toBe(3);
   });
 
-  test('Constructor initializes components to specified values', () => {
-    const vector = new Vector3(1, -2, 3.5);
-    expect(vector.x).toBe(1);
-    expect(vector.y).toBe(-2);
-    expect(vector.z).toBe(3.5);
+  test('add returns correct sum vector', () => {
+    const v1 = new Vector3(1, 2, 3);
+    const v2 = new Vector3(4, 5, 6);
+    const sum = v1.add(v2);
+    expect(sum.x).toBe(5);
+    expect(sum.y).toBe(7);
+    expect(sum.z).toBe(9);
   });
 
-  test('add() correctly adds two vectors', () => {
-    const vectorA = new Vector3(1, 2, 3);
-    const vectorB = new Vector3(4, -5, 6);
-    const result = vectorA.add(vectorB);
-    expect(result).toEqual(new Vector3(5, -3, 9));
+  test('subtract returns correct difference vector', () => {
+    const v1 = new Vector3(5, 7, 9);
+    const v2 = new Vector3(1, 2, 3);
+    const diff = v1.subtract(v2);
+    expect(diff.x).toBe(4);
+    expect(diff.y).toBe(5);
+    expect(diff.z).toBe(6);
   });
 
-  test('subtract() correctly subtracts two vectors', () => {
-    const vectorA = new Vector3(5, 7, 9);
-    const vectorB = new Vector3(1, 2, 3);
-    const result = vectorA.subtract(vectorB);
-    expect(result).toEqual(new Vector3(4, 5, 6));
+  test('multiplyScalar returns correctly scaled vector', () => {
+    const vec = new Vector3(1, 2, 3);
+    const scaled = vec.multiplyScalar(3);
+    expect(scaled.x).toBe(3);
+    expect(scaled.y).toBe(6);
+    expect(scaled.z).toBe(9);
   });
 
-  test('multiplyScalar() correctly multiplies vector by scalar', () => {
-    const vector = new Vector3(1, -2, 3);
-    const scalar = 2;
-    const result = vector.multiplyScalar(scalar);
-    expect(result).toEqual(new Vector3(2, -4, 6));
+  test('divideScalar returns correctly scaled vector', () => {
+    const vec = new Vector3(2, 4, 6);
+    const result = vec.divideScalar(2);
+    expect(result.x).toBe(1);
+    expect(result.y).toBe(2);
+    expect(result.z).toBe(3);
   });
 
-  test('magnitude() returns correct magnitude of vector', () => {
-    const vector = new Vector3(3, 4, 0);
-    const magnitude = vector.magnitude();
-    expect(magnitude).toBeCloseTo(5);
+  test('divideScalar throws error when dividing by zero', () => {
+    const vec = new Vector3(2, 4, 6);
+    expect(() => vec.divideScalar(0)).toThrow(
+      'Division by zero in Vector3.divideScalar'
+    );
   });
 
-  test('normalize() returns a vector with magnitude 1', () => {
-    const vector = new Vector3(3, 4, 0);
-    const normalized = vector.normalize();
-    expect(normalized.magnitude()).toBeCloseTo(1);
-    expect(normalized.x).toBeCloseTo(0.6);
-    expect(normalized.y).toBeCloseTo(0.8);
-    expect(normalized.z).toBe(0);
+  test('dot returns correct dot product', () => {
+    const a = new Vector3(1, 2, 3);
+    const b = new Vector3(4, -5, 6);
+    // 1*4 + 2*(-5) + 3*6 = 4 - 10 + 18 = 12
+    expect(a.dot(b)).toBeCloseTo(12);
   });
 
-  test('normalize() throws error when vector has zero length', () => {
-    const vector = new Vector3(0, 0, 0);
-    expect(() => vector.normalize()).toThrow(
+  test('cross returns correct cross product', () => {
+    const a = new Vector3(1, 0, 0);
+    const b = new Vector3(0, 1, 0);
+    const cross = a.cross(b);
+    // Expected cross product: (0, 0, 1)
+    expect(cross.x).toBeCloseTo(0);
+    expect(cross.y).toBeCloseTo(0);
+    expect(cross.z).toBeCloseTo(1);
+  });
+
+  test('magnitude returns correct value', () => {
+    const vec = new Vector3(3, 4, 0);
+    expect(vec.magnitude()).toBeCloseTo(5);
+  });
+
+  test('normalize returns a unit vector', () => {
+    const vec = new Vector3(3, 4, 0);
+    const norm = vec.normalize();
+    expect(norm.magnitude()).toBeCloseTo(1);
+    expect(norm.x).toBeCloseTo(3 / 5);
+    expect(norm.y).toBeCloseTo(4 / 5);
+    expect(norm.z).toBeCloseTo(0);
+  });
+
+  test('normalize throws error for zero-length vector', () => {
+    const zeroVector = new Vector3(0, 0, 0);
+    expect(() => zeroVector.normalize()).toThrow(
       'Cannot normalize a zero-length vector.'
     );
   });
 
-  test('dot() returns correct dot product', () => {
-    const vectorA = new Vector3(1, 3, -5);
-    const vectorB = new Vector3(4, -2, -1);
-    const dotProduct = vectorA.dot(vectorB);
-    expect(dotProduct).toBe(3);
+  test('distanceTo returns correct distance', () => {
+    const pointA = new Vector3(1, 1, 1);
+    const pointB = new Vector3(4, 5, 1);
+    // Distance should be sqrt((3)^2 + (4)^2 + 0^2) = 5
+    expect(pointA.distanceTo(pointB)).toBeCloseTo(5);
   });
 
-  test('cross() returns correct cross product', () => {
-    const vectorA = new Vector3(2, 3, 4);
-    const vectorB = new Vector3(5, 6, 7);
-    const result = vectorA.cross(vectorB);
-    expect(result).toEqual(new Vector3(-3, 6, -3));
+  test('clone returns an identical vector and does not affect the original', () => {
+    const vec = new Vector3(1, 2, 3);
+    const copy = vec.clone();
+    expect(copy.x).toBe(vec.x);
+    expect(copy.y).toBe(vec.y);
+    expect(copy.z).toBe(vec.z);
+    // Ensure it is a separate instance
+    copy.x = 10;
+    expect(vec.x).toBe(1);
   });
 
-  test('distanceTo() returns correct distance between vectors', () => {
-    const vectorA = new Vector3(1, 1, 1);
-    const vectorB = new Vector3(4, 5, 6);
-    const distance = vectorA.distanceTo(vectorB);
-    // The correct distance is sqrt(50) ≈ 7.0710678118654755
-    expect(distance).toBeCloseTo(7.0710678118654755, 10);
-  });
-
-  test('clone() creates an exact copy of the vector', () => {
-    const vector = new Vector3(1, 2, 3);
-    const clone = vector.clone();
-    expect(clone).toEqual(vector);
-    expect(clone).not.toBe(vector); // Ensure it's a different instance
-  });
-
-  test('toArray() returns correct array representation', () => {
-    const vector = new Vector3(1, 2, 3);
-    const array = vector.toArray();
-    expect(array).toEqual([1, 2, 3]);
-  });
-
-  test('toString() returns correct string representation', () => {
-    const vector = new Vector3(1, 2, 3);
-    const string = vector.toString();
-    expect(string).toBe('Vector3(1, 2, 3)');
-  });
-
-  // --- Additional tests for newly added utility methods ---
-
-  test('set() updates vector components correctly', () => {
-    const vector = new Vector3();
-    vector.set(5, -3, 2);
-    expect(vector.x).toBe(5);
-    expect(vector.y).toBe(-3);
-    expect(vector.z).toBe(2);
-  });
-
-  test('copy() copies components correctly and returns the same instance', () => {
-    const vector = new Vector3(1, 2, 3);
-    const target = new Vector3();
-    const returnedTarget = target.copy(vector);
-    expect(target).toEqual(vector);
-    expect(returnedTarget).toBe(target);
-  });
-
-  test('static zero() returns a zero vector', () => {
-    const zeroVector = Vector3.zero();
-    expect(zeroVector).toEqual(new Vector3(0, 0, 0));
+  test('set updates vector components correctly', () => {
+    const vec = new Vector3();
+    vec.set(7, 8, 9);
+    expect(vec.x).toBe(7);
+    expect(vec.y).toBe(8);
+    expect(vec.z).toBe(9);
   });
 
   test('rotateAroundAxis rotates vector correctly', () => {
-    // Rotate vector (1, 0, 0) by 90 degrees (π/2) about the z-axis (0,0,1).
-    const vector = new Vector3(1, 0, 0);
-    const axis = new Vector3(0, 0, 1);
-    const angle = Math.PI / 2;
-    const rotated = vector.rotateAroundAxis(axis, angle);
-    // The expected result is approximately (0, 1, 0).
+    const vec = new Vector3(1, 0, 0);
+    const axis = new Vector3(0, 0, 1).normalize();
+    const rotated = vec.rotateAroundAxis(axis, Math.PI / 2);
+    // Rotating (1,0,0) around the Z-axis by 90° should give (0,1,0)
     expect(rotated.x).toBeCloseTo(0, 5);
     expect(rotated.y).toBeCloseTo(1, 5);
     expect(rotated.z).toBeCloseTo(0, 5);

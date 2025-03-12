@@ -1,20 +1,24 @@
 import { Vector3 } from './Vector3';
 
+/**
+ * The Utils class provides a collection of static helper functions for
+ * mathematical operations and vector calculations commonly used in Quantum Sensor Sim.
+ */
 export class Utils {
   /**
    * Generates a random number within the specified range.
-   * @param {number} min - The minimum value.
-   * @param {number} max - The maximum value.
-   * @returns {number} - A random number between min and max.
+   * @param min - The minimum value (inclusive).
+   * @param max - The maximum value (exclusive).
+   * @returns A random number between min and max.
    */
   static generateRandomNumber(min: number, max: number): number {
     return Math.random() * (max - min) + min;
   }
 
   /**
-   * Calculates the magnitude of a vector.
-   * @param {Vector3} vector - The vector.
-   * @returns {number} - The magnitude of the vector.
+   * Calculates the magnitude (length) of a vector.
+   * @param vector - The vector for which to calculate the magnitude.
+   * @returns The magnitude of the vector.
    */
   static calculateVectorMagnitude(vector: Vector3): number {
     return Math.sqrt(
@@ -23,12 +27,16 @@ export class Utils {
   }
 
   /**
-   * Normalizes a vector to have a magnitude of 1.
-   * @param {Vector3} vector - The vector.
-   * @returns {Vector3} - The normalized vector.
+   * Normalizes a vector so that its magnitude becomes 1.
+   * @param vector - The vector to normalize.
+   * @returns A new Vector3 that is the normalized vector.
    */
   static normalizeVector(vector: Vector3): Vector3 {
     const magnitude = Utils.calculateVectorMagnitude(vector);
+    // Avoid division by zero.
+    if (magnitude === 0) {
+      throw new Error('Cannot normalize a zero-length vector.');
+    }
     return new Vector3(
       vector.x / magnitude,
       vector.y / magnitude,
@@ -38,9 +46,9 @@ export class Utils {
 
   /**
    * Calculates the dot product of two vectors.
-   * @param {Vector3} vectorA - The first vector.
-   * @param {Vector3} vectorB - The second vector.
-   * @returns {number} - The dot product of the vectors.
+   * @param vectorA - The first vector.
+   * @param vectorB - The second vector.
+   * @returns The dot product (a scalar) of the two vectors.
    */
   static dotProduct(vectorA: Vector3, vectorB: Vector3): number {
     return (
@@ -50,9 +58,9 @@ export class Utils {
 
   /**
    * Calculates the cross product of two vectors.
-   * @param {Vector3} vectorA - The first vector.
-   * @param {Vector3} vectorB - The second vector.
-   * @returns {Vector3} - The cross product of the vectors.
+   * @param vectorA - The first vector.
+   * @param vectorB - The second vector.
+   * @returns A new Vector3 representing the cross product.
    */
   static crossProduct(vectorA: Vector3, vectorB: Vector3): Vector3 {
     return new Vector3(
@@ -64,9 +72,9 @@ export class Utils {
 
   /**
    * Calculates the distance between two points in space.
-   * @param {Vector3} pointA - The first point.
-   * @param {Vector3} pointB - The second point.
-   * @returns {number} - The distance between the points.
+   * @param pointA - The first point as a Vector3.
+   * @param pointB - The second point as a Vector3.
+   * @returns The Euclidean distance between the two points.
    */
   static distanceBetweenPoints(pointA: Vector3, pointB: Vector3): number {
     return Utils.calculateVectorMagnitude(
@@ -75,53 +83,53 @@ export class Utils {
   }
 
   /**
-   * Clamps a value between a minimum and maximum range.
-   * @param {number} value - The value to clamp.
-   * @param {number} min - The minimum range.
-   * @param {number} max - The maximum range.
-   * @returns {number} - The clamped value.
+   * Clamps a number within the specified minimum and maximum values.
+   * @param value - The number to clamp.
+   * @param min - The minimum permissible value.
+   * @param max - The maximum permissible value.
+   * @returns The clamped value.
    */
   static clamp(value: number, min: number, max: number): number {
     return Math.max(min, Math.min(max, value));
   }
 
   /**
-   * Linearly interpolates between start and end by t.
-   * @param {number} start - The start value.
-   * @param {number} end - The end value.
-   * @param {number} t - The interpolation factor.
-   * @returns {number} - The interpolated value.
+   * Performs linear interpolation between start and end by a factor t.
+   * @param start - The start value.
+   * @param end - The end value.
+   * @param t - The interpolation factor, commonly between 0 and 1.
+   * @returns The interpolated value.
    */
   static lerp(start: number, end: number, t: number): number {
     return start + t * (end - start);
   }
 
   /**
-   * Calculates the angle between two vectors.
-   * @param {Vector3} vectorA - The first vector.
-   * @param {Vector3} vectorB - The second vector.
-   * @returns {number} - The angle between the vectors in radians.
+   * Calculates the angle in radians between two vectors.
+   * @param vectorA - The first vector.
+   * @param vectorB - The second vector.
+   * @returns The angle between the vectors in radians.
    */
   static angleBetweenVectors(vectorA: Vector3, vectorB: Vector3): number {
     const dot = Utils.dotProduct(vectorA, vectorB);
-    const magnitudes =
+    const magProduct =
       Utils.calculateVectorMagnitude(vectorA) *
       Utils.calculateVectorMagnitude(vectorB);
-    return Math.acos(dot / magnitudes);
+    // Clamp to avoid rounding errors in acos.
+    const cosine = Utils.clamp(dot / magProduct, -1, 1);
+    return Math.acos(cosine);
   }
 
   /**
-   * Projects vector A onto vector B.
-   * @param {Vector3} vectorA - The first vector.
-   * @param {Vector3} vectorB - The second vector.
-   * @returns {Vector3} - The projection of vectorA onto vectorB.
+   * Projects vectorA onto vectorB.
+   * @param vectorA - The vector to project.
+   * @param vectorB - The vector onto which to project.
+   * @returns A new Vector3 representing the projection of vectorA onto vectorB.
    */
   static projection(vectorA: Vector3, vectorB: Vector3): Vector3 {
-    const dotProduct = Utils.dotProduct(vectorA, vectorB);
-    const magnitudeSquared =
-      Utils.calculateVectorMagnitude(vectorB) *
-      Utils.calculateVectorMagnitude(vectorB);
-    const scalarProjection = dotProduct / magnitudeSquared;
+    const dotProd = Utils.dotProduct(vectorA, vectorB);
+    const magnitudeSquared = Utils.calculateVectorMagnitude(vectorB) ** 2;
+    const scalarProjection = dotProd / magnitudeSquared;
     return new Vector3(
       vectorB.x * scalarProjection,
       vectorB.y * scalarProjection,
