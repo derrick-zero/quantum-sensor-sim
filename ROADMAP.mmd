@@ -1,0 +1,166 @@
+```mermaid
+flowchart TB
+%% Core & Utility Modules
+subgraph Core_Utility [Core & Utility]
+direction TB
+A[Constants.ts]
+B[Logger.ts]
+C[Utils.ts]
+D[Vector3.ts]
+end
+
+%% Sensor Modules
+subgraph Sensors [Sensor Modules]
+  direction TB
+  E[SensorState.ts]
+  F[Sensor.ts]
+  G[SensorSphere.ts]
+  H[SensorSphereNetwork.ts]
+end
+
+%% Simulation Engine
+subgraph SimulationEngine [Simulation Engine]
+  direction TB
+  I[SimulationEngine.ts]
+end
+
+%% Physics Modules
+subgraph Physics [Physics Modules]
+  direction TB
+  %% Gravity & Electricity
+  subgraph Gravity_Electricity [Gravity & Electricity]
+     direction TB
+     J[GravitySimulator.ts]
+     K[ElectricField.ts]
+  end
+  %% Electromagnetic Waves
+  subgraph EM_Waves [Electromagnetic Waves]
+     direction TB
+     L[FaradayLaw.ts]
+     M[HertzianWaves.ts]
+     N[PlanckLaw.ts]
+  end
+  %% Magnetism
+  subgraph Magnetism [Magnetism]
+     direction TB
+     O[MagneticField.ts]
+     P[MagnetismSimulator.ts]
+  end
+  %% Neutrinos & Nuclear Physics
+  subgraph Neutrinos_Nuclear [Neutrinos & Nuclear Physics]
+     direction TB
+     Q[Neutrino.ts]
+     R[NeutrinoInteractions.ts]
+     S[NeutrinoSimulator.ts]
+     T[NuclearFissionFusion.ts]
+     U[ParticleInteractions.ts]
+     V[RadioactiveDecay.ts]
+  end
+  %% Acoustics
+  subgraph Acoustics [Acoustics]
+     direction TB
+     W[AcousticDopplerEffect.ts]
+     X[HarmonicOscillators.ts]
+     Y[SoundWaves.ts]
+  end
+  %% Optics
+  subgraph Optics [Optics]
+     direction TB
+     Z[DiffractionPolarization.ts]
+     AA[LensMirrorEquations.ts]
+     AB[SnellLaw.ts]
+  end
+  %% Photons
+  subgraph Photons [Photons]
+     direction TB
+     AC[ElectromagneticWave.ts]
+     AD[Photon.ts]
+     AE[PhotonSimulator.ts]
+  end
+  %% Plasma Physics
+  subgraph Plasma [Plasma Physics]
+     direction TB
+     AF[DebyeShielding.ts]
+     AG[Magnetohydrodynamics.ts]
+     AH[PlasmaOscillations.ts]
+  end
+  %% Statistical Mechanics
+  subgraph Statistical [Statistical Mechanics]
+     direction TB
+     AI[BoltzmannDistribution.ts]
+     AJ[PartitionFunction.ts]
+     AK[ThermodynamicPotentials.ts]
+  end
+  %% Thermodynamics
+  subgraph Thermodynamics [Thermodynamics]
+     direction TB
+     AL[CarnotCycle.ts]
+     AM[HeatTransfer.ts]
+     AN[ThermodynamicLaws.ts]
+  end
+  %% Wave Mechanics
+  subgraph Wave [Wave Mechanics]
+     direction TB
+     AO[SchrodingerEquation.ts]
+     AP[WaveInterference.ts]
+     AQ[WaveParticleDuality.ts]
+  end
+end
+
+%% Integration, Application, and Configuration Files
+subgraph Integration_Config [Integration & Config]
+  direction TB
+  AR[app.ts]
+  AS[cypress/e2e/app.cy.ts]
+  AT[package.json]
+  AU[tsconfig.json]
+  AV[cypress.config.js]
+  AW[.gitignore]
+  AX[.eslintignore]
+  AY[QuantumSensorSim.code-workspace]
+end
+
+%% Documentation & Project Metadata
+subgraph Documentation [Documentation Project Metadata]
+  direction TB
+  AZ[README.md]
+  BA[API_REFERENCE.md]
+  BB[TECH_STACK.md]
+  BC[CONTRIBUTING.md]
+  BD[FILE_INVENTORY.md]
+  BE[ROADMAP.md]
+  BF[LICENSE]
+end
+
+%% Connections between modules
+A --> F
+D --> F
+F --> G
+G --> I
+I --> Gravity_Electricity
+I --> EM_Waves
+I --> Magnetism
+I --> Neutrinos_Nuclear
+I --> Acoustics
+I --> Optics
+I --> Photons
+I --> Plasma
+I --> Statistical
+I --> Thermodynamics
+I --> Wave
+I --> AR
+AR --> AS
+AR --> AT
+AR --> AU
+AR --> AV
+AR --> AW
+AR --> AX
+AR --> AY
+AR --> AZ
+AR --> BA
+AR --> BB
+AR --> BC
+AR --> BD
+AR --> BE
+AR --> BF
+```
