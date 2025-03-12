@@ -48,7 +48,7 @@ window.addEventListener('resize', () => {
 // Simulation Engine Setup
 // =====================
 
-// Generate a set of sensors with random positions and velocities.
+// Generate sensors with random positions and velocities.
 const sensors: Sensor[] = [];
 for (let i = 0; i < 20; i++) {
   const pos = new Vector3(
@@ -64,18 +64,19 @@ for (let i = 0; i < 20; i++) {
   sensors.push(new Sensor(`S${i}`, pos, vel));
 }
 
-// Create several sensor spheres; designate the first as the container.
+// Create multiple sensor spheres.
+// The first sphere acts as the container.
 const sensorSpheres: SensorSphere[] = [];
 const containerSphere = new SensorSphere(
   'Container',
   new Vector3(0, 0, 0),
-  7,
+  7, // Container radius.
   50
 );
 sensorSpheres.push(containerSphere);
-// Optionally add additional sensor spheres (for hierarchical grouping)
+
+// Optionally add additional sensor spheres.
 for (let i = 1; i < 3; i++) {
-  // Position additional spheres offset from the container for demonstration.
   sensorSpheres.push(
     new SensorSphere(`Sphere${i}`, new Vector3(i * 5, 0, 0), 3, 20)
   );
@@ -83,6 +84,11 @@ for (let i = 1; i < 3; i++) {
 
 // Initialize the SimulationEngine with a 0.05-second time step.
 const engine = new SimulationEngine(sensors, sensorSpheres, 0.05);
+
+// Expose key objects for Cypress tests.
+(window as any).engine = engine;
+(window as any).sensors = sensors;
+(window as any).sensorSpheres = sensorSpheres;
 
 // =====================
 // GUI Setup with lil-gui
@@ -117,7 +123,7 @@ controlFolder.open();
 // =====================
 // Visual Representation: Sensor Meshes
 // =====================
-// Create sensor meshes based on sensor properties.
+// Create meshes for individual sensors using their dynamic properties.
 const sensorMeshes = sensors.map(sensor => {
   const geometry = new THREE.SphereGeometry(sensor.radius, 8, 8);
   const material = new THREE.MeshBasicMaterial({ color: sensor.color });
@@ -126,7 +132,7 @@ const sensorMeshes = sensors.map(sensor => {
   return { id: sensor.id, mesh };
 });
 
-// Create meshes for sensor spheres; use a wireframe for container visualization.
+// Create meshes for sensor spheres (container visualization).
 const sensorSphereMeshes = sensorSpheres.map(sphere => {
   const geometry = new THREE.SphereGeometry(sphere.radius, 16, 16);
   const material = new THREE.MeshBasicMaterial({
@@ -137,7 +143,6 @@ const sensorSphereMeshes = sensorSpheres.map(sphere => {
   });
   const mesh = new THREE.Mesh(geometry, material);
   mesh.position.set(sphere.center.x, sphere.center.y, sphere.center.z);
-  // Tag mesh with sensor sphere ID for raycasting.
   mesh.userData = { id: sphere.id };
   scene.add(mesh);
   return { id: sphere.id, mesh };
@@ -152,8 +157,8 @@ const mouse = new THREE.Vector2();
 renderer.domElement.addEventListener('click', event => {
   mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
   mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
   raycaster.setFromCamera(mouse, camera);
+
   // Raycast against the container mesh.
   const intersects = raycaster.intersectObject(sensorSphereMeshes[0].mesh);
   if (intersects.length > 0 && containerSphere) {
@@ -172,7 +177,7 @@ function animate() {
   // Update simulation engine.
   engine.update();
 
-  // Update sensor meshes.
+  // Update sensor meshes positions.
   sensors.forEach(sensor => {
     const meshEntry = sensorMeshes.find(s => s.id === sensor.id);
     if (meshEntry) {
@@ -184,14 +189,14 @@ function animate() {
     }
   });
 
-  // Update sensor sphere (container) meshes.
+  // Update sensor sphere meshes positions.
   sensorSphereMeshes.forEach(entry => {
-    const sphere = sensorSpheres.find(s => s.id === entry.id);
-    if (sphere) {
+    const sphereSim = sensorSpheres.find(s => s.id === entry.id);
+    if (sphereSim) {
       entry.mesh.position.set(
-        sphere.center.x,
-        sphere.center.y,
-        sphere.center.z
+        sphereSim.center.x,
+        sphereSim.center.y,
+        sphereSim.center.z
       );
     }
   });

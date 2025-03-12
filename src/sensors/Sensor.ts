@@ -107,9 +107,9 @@ export class Sensor {
    * @returns A color string.
    */
   private computeColor(charge: number): string {
-    if (charge === 0) {
-      return '#888888';
-    }
+    // Simple case: if charge is 0, return a neutral color.
+    if (charge === 0) return '#888888';
+    // For now, use our current logic. Later, incorporate temperature-based adjustments.
     return charge > 0 ? '#FF0000' : '#00FFFF';
   }
 

@@ -151,24 +151,24 @@ export class SimulationEngine {
   public update(): void {
     if (!this.running) return;
 
-    // Determine the effective time step (reverse if needed).
+    // Determine effective step value based on time reversal.
     const step = this.timeReversed ? -this.deltaTime : this.deltaTime;
+    // Update global time normally, even if step is negative.
     this.globalTime += step;
 
+    // Use absolute value for kinematic updates to avoid errors.
+    const dt = Math.abs(step);
+
     // Update sensor spheres.
-    this.sensorSpheres.forEach(sphere => {
-      sphere.update(step);
-    });
+    this.sensorSpheres.forEach(sphere => sphere.update(dt));
 
     // Update individual sensors.
-    this.sensors.forEach(sensor => {
-      sensor.update(step);
-    });
+    this.sensors.forEach(sensor => sensor.update(dt));
 
-    // Handle sensor-to-sensor collisions.
+    // Handle collisions...
     this.handleSensorCollisions();
 
-    // Process interactions among sensor spheres (placeholder).
+    // Process interactions among sphere (placeholder).
     for (let i = 0; i < this.sensorSpheres.length; i++) {
       for (let j = i + 1; j < this.sensorSpheres.length; j++) {
         this.sensorSpheres[i].calculateForces([this.sensorSpheres[j]]);
@@ -176,7 +176,7 @@ export class SimulationEngine {
       }
     }
 
-    // Enforce container boundary: ensure sensors remain inside the container.
+    // Enforce container boundary.
     if (this.container) {
       this.sensors.forEach(sensor => {
         this.handleContainerCollision(sensor, this.container!);
