@@ -3,18 +3,21 @@
   "version": "1.0.0",
   "description": "Quantum Sensor Simulation Project",
   "scripts": {
-    "start": "parcel index.html",
-    "build": "npm run clean && parcel build index.html",
+    "build": "parcel build index.html",
     "clean": "rimraf dist .parcel-cache",
-    "test": "jest",
-    "test:e2e": "start-server-and-test start http://localhost:1234 cy:open",
-    "test:integration": "jest --config jest.integration.config.js",
-    "test:unit": "jest --config jest.config.js",
     "cy:open": "cypress open",
     "doc": "typedoc --out docs/api src --entryPointStrategy expand",
     "format": "prettier --write .",
     "lint": "eslint . --ext .ts",
-    "prepare": "husky install"
+    "postbuild": "npm run test && npm run test:e2e",
+    "prebuild": "npm run clean && npm run format && npm run lint && npm run doc",
+    "prepare": "husky install",
+    "start": "parcel index.html",
+    "test:all": "npm run test:unit && npm run test:integration && npm run test:e2e",
+    "test:e2e": "start-server-and-test start http://localhost:1234 cy:open",
+    "test:integration": "jest --config jest.integration.config.js",
+    "test:unit": "jest --config jest.config.js",
+    "test": "jest"
   },
   "dependencies": {
     "@types/three": "^0.174.0",

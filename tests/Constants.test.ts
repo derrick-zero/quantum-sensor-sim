@@ -1,10 +1,11 @@
 /// <reference types="jest" />
+
 import { Constants } from '../src/core/Constants';
 
 describe('Constants', () => {
   test('Physical constants are defined correctly', () => {
     expect(Constants.GRAVITATIONAL_CONSTANT).toBeCloseTo(6.6743e-11);
-    expect(Constants.SPEED_OF_LIGHT).toBe(299792458);
+    expect(Constants.SPEED_OF_LIGHT).toEqual(299792458);
     expect(Constants.PLANCK_CONSTANT).toBeCloseTo(6.62607015e-34);
     expect(Constants.ELEMENTARY_CHARGE).toBeCloseTo(1.602176634e-19);
     expect(Constants.BOLTZMANN_CONSTANT).toBeCloseTo(1.380649e-23);
@@ -45,6 +46,10 @@ describe('Constants', () => {
       '#87CEFA',
     ]);
     expect(Constants.NEUTRAL_COLOR).toEqual('#FFFFFF');
+  });
+
+  test('MAX_SENSOR_CHARGE is defined', () => {
+    expect(Constants.MAX_SENSOR_CHARGE).toEqual(10);
   });
 
   test('Additional domain constants are defined correctly', () => {

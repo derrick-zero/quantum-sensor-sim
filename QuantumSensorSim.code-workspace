@@ -1,17 +1,28 @@
 {
   "extensions": {
     "recommendations": [
+      "42crunch.vscode-openapi",
       "bierner.github-markdown-preview",
       "christian-kohler.npm-intellisense",
       "christian-kohler.path-intellisense",
-      "cypress.vscode-cypress-test-adapter",
       "dbaeumer.vscode-eslint",
       "eamodio.gitlens",
+      "editorconfig.editorconfig",
       "errata-ai.vale-server",
       "esbenp.prettier-vscode",
       "github.copilot-chat",
+      "github.copilot",
       "github.remotehub",
+      "ibm.output-colorizer",
+      "ms-cst-e.vscode-devskim",
+      "ms-dotnettools.csdevkit",
+      "ms-dotnettools.csharp",
       "ms-edgedevtools.vscode-edge-devtools",
+      "ms-python.black-formatter",
+      "ms-python.pylance",
+      "ms-python.pylint",
+      "ms-python.python",
+      "ms-vscode-remote.remote-containers",
       "ms-vscode-remote.remote-wsl",
       "ms-vscode.azure-repos",
       "ms-vscode.copilot-mermaid-diagram",
@@ -22,11 +33,14 @@
       "orta.vscode-jest",
       "pkief.material-icon-theme",
       "pkief.material-product-icons",
+      "redhat.vscode-yaml",
       "silofy.hackthebox",
+      "sonarsource.sonarlint-vscode",
       "streetsidesoftware.code-spell-checker",
       "stylelint.vscode-stylelint",
       "visualstudioexptteam.intellicode-api-usage-examples",
-      "visualstudioexptteam.vscodeintellicode"
+      "visualstudioexptteam.vscodeintellicode",
+      "visualstudiotoolsforunity.vstuc"
     ]
   },
   "folders": [

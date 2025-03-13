@@ -6,7 +6,7 @@ import { SimulationEngine } from '../src/SimulationEngine';
 import { SensorState } from '../src/sensors/SensorState';
 import { Vector3 } from '../src/core/Vector3';
 import { Logger, LogLevel } from '../src/core/Logger';
-import { Constants } from '../src/core/Constants';
+// import { Constants } from '../src/core/Constants';
 
 describe('SimulationEngine Tests', () => {
   beforeAll(() => {
@@ -39,6 +39,7 @@ describe('SimulationEngine Tests', () => {
     engine.start();
     const initialTime = engine.globalTime;
     engine.update();
+    // In forward mode, globalTime should increase by deltaTime.
     expect(engine.globalTime).toBeCloseTo(initialTime + 0.05, 5);
     engine.pause();
   });
@@ -46,9 +47,10 @@ describe('SimulationEngine Tests', () => {
   test('update method updates globalTime when running (reversed mode)', () => {
     const engine = new SimulationEngine([], [], 0.05);
     engine.start();
-    engine.toggleTimeReversal();
+    engine.toggleTimeReversal(); // switch to reversed mode
     const initialTime = engine.globalTime;
     engine.update();
+    // In reversed mode, globalTime should decrease by deltaTime.
     expect(engine.globalTime).toBeCloseTo(initialTime - 0.05, 5);
     engine.pause();
   });
@@ -71,6 +73,7 @@ describe('SimulationEngine Tests', () => {
   });
 
   test('collision detection: sensors on a collision course update velocities', () => {
+    // Create two sensors on a collision course.
     const sensor1 = new Sensor(
       'S1',
       new Vector3(-0.3, 0, 0),
@@ -87,6 +90,7 @@ describe('SimulationEngine Tests', () => {
     );
     (sensor1 as any).radius = 0.5;
     (sensor2 as any).radius = 0.5;
+
     const engine = new SimulationEngine([sensor1, sensor2], [], 0.1);
     const originalV1 = sensor1.velocity.clone();
     const originalV2 = sensor2.velocity.clone();
@@ -98,6 +102,7 @@ describe('SimulationEngine Tests', () => {
   });
 
   test('collision detection: sensors overlapping with zero relative velocity do not trigger collision response', () => {
+    // Create two sensors with overlapping positions but identical velocities.
     const sensor1 = new Sensor(
       'S_overlap1',
       new Vector3(0, 0, 0),
@@ -114,12 +119,14 @@ describe('SimulationEngine Tests', () => {
     );
     (sensor1 as any).radius = 0.5;
     (sensor2 as any).radius = 0.5;
+
     const engine = new SimulationEngine([sensor1, sensor2], [], 0.1);
     const originalV1 = sensor1.velocity.clone();
     const originalV2 = sensor2.velocity.clone();
     engine.start();
     engine.update();
     engine.pause();
+
     expect(sensor1.velocity.x).toEqual(originalV1.x);
     expect(sensor2.velocity.x).toEqual(originalV2.x);
   });
@@ -149,7 +156,7 @@ describe('SimulationEngine Tests', () => {
   });
 
   test('handleContainerCollision: sensor exactly on boundary remains unchanged', () => {
-    // Create a sensor exactly at (5,0,0) with zero velocity to ensure it does not trigger repositioning.
+    // Create a sensor exactly on the container boundary.
     const sensor = new Sensor(
       'S_boundary',
       new Vector3(5, 0, 0),
@@ -165,12 +172,13 @@ describe('SimulationEngine Tests', () => {
       10
     );
     const engine = new SimulationEngine([sensor], [container], 0.1);
-    // Set engine running to force collision check.
     engine.start();
     engine.update();
     engine.pause();
-    // Expect sensor.position.x to remain close to 5, within a tolerance.
-    expect(sensor.position.x).toBeCloseTo(5, 1);
+    // Retrieve sensor's current position as an array.
+    const currentPos = sensor.position.toArray();
+    // Checking that the sensor remains at approximately x = 5.
+    expect(currentPos[0]).toBeCloseTo(5, 1);
   });
 
   test('reset restores sensors and sensor spheres to their initial state', () => {
@@ -194,12 +202,15 @@ describe('SimulationEngine Tests', () => {
     expect(engine.globalTime).toEqual(0);
     const resetSensor = (engine as any).sensors[0];
     const resetSphere = (engine as any).sensorSpheres[0];
-    expect(resetSensor.position.x).toBeCloseTo(1, 5);
-    expect(resetSensor.position.y).toBeCloseTo(1, 5);
-    expect(resetSensor.position.z).toBeCloseTo(1, 5);
-    expect(resetSphere.center.x).toBeCloseTo(0, 5);
-    expect(resetSphere.center.y).toBeCloseTo(0, 5);
-    expect(resetSphere.center.z).toBeCloseTo(0, 5);
+    // Use the toArray() method to extract components
+    const sensorPos = resetSensor.position.toArray();
+    const spherePos = resetSphere.center.toArray();
+    expect(sensorPos[0]).toBeCloseTo(1, 5);
+    expect(sensorPos[1]).toBeCloseTo(1, 5);
+    expect(sensorPos[2]).toBeCloseTo(1, 5);
+    expect(spherePos[0]).toBeCloseTo(0, 5);
+    expect(spherePos[1]).toBeCloseTo(0, 5);
+    expect(spherePos[2]).toBeCloseTo(0, 5);
     engine.pause();
   });
 

@@ -32,8 +32,6 @@ describe('Quantum Sensor Sim Visual Demo', () => {
   });
 
   it('should expose GUI controls for Reset, Randomize, Toggle Time Reversal, and Impulse Strength', () => {
-    // Using Cypress to find elements with text on the lil-gui panel.
-    // Note: lil-gui dynamically creates its DOM elements, usually as <div class="lil-gui">.
     cy.contains('Reset Simulation').should('be.visible');
     cy.contains('Randomize Sensors').should('be.visible');
     cy.contains('Toggle Time Reversal').should('be.visible');
@@ -41,9 +39,9 @@ describe('Quantum Sensor Sim Visual Demo', () => {
   });
 
   it('should reset the simulation when the Reset control is used', () => {
-    // Capture the initial position of the first sensor via the global engine.
+    // Capture the initial positions of sensors via the global engine.
     cy.window().then((win: any) => {
-      // Store the initial positions as an array.
+      // Store the initial positions as arrays.
       const initialPositions = win.engine.sensors.map((s: any) =>
         s.position.toArray()
       );
@@ -54,30 +52,10 @@ describe('Quantum Sensor Sim Visual Demo', () => {
       // Verify that each sensor's position has been reset to its initial value.
       win.engine.sensors.forEach((sensor: any, idx: number) => {
         const initPos = initialPositions[idx];
-        expect(sensor.position.x).to.be.closeTo(initPos[0], 1);
-        expect(sensor.position.y).to.be.closeTo(initPos[1], 1);
-        expect(sensor.position.z).to.be.closeTo(initPos[2], 1);
-      });
-    });
-  });
-
-  it('should reset the simulation when the Reset control is used', () => {
-    // Capture the initial position of the first sensor via the global engine.
-    cy.window().then((win: any) => {
-      // Store the initial positions as an array.
-      const initialPositions = win.engine.sensors.map((s: any) =>
-        s.position.toArray()
-      );
-      // Trigger the Reset control via the GUI.
-      cy.contains('Reset Simulation').click();
-      cy.wait(100);
-      cy.get('#timeDisplay').should('contain', 'Time: 0.00 s');
-      // Verify that each sensor's position has been reset to its initial value.
-      win.engine.sensors.forEach((sensor: any, idx: number) => {
-        const initPos = initialPositions[idx];
-        expect(sensor.position.x).to.be.closeTo(initPos[0], 1);
-        expect(sensor.position.y).to.be.closeTo(initPos[1], 1);
-        expect(sensor.position.z).to.be.closeTo(initPos[2], 1);
+        const currentPos = sensor.position.toArray();
+        expect(currentPos[0]).to.be.closeTo(initPos[0], 1);
+        expect(currentPos[1]).to.be.closeTo(initPos[1], 1);
+        expect(currentPos[2]).to.be.closeTo(initPos[2], 1);
       });
     });
   });
@@ -104,8 +82,7 @@ describe('Quantum Sensor Sim Visual Demo', () => {
       engine.update();
       const timeAfterReverse = engine.globalTime;
 
-      // With our revised update method using absolute delta in kinematics,
-      // our global time decreases even though simulations update with |deltaTime|.
+      // Expect global time decreases in reversed mode.
       expect(timeAfterReverse).to.be.closeTo(
         timeAfterForward - engine.deltaTime,
         0.001
@@ -115,31 +92,23 @@ describe('Quantum Sensor Sim Visual Demo', () => {
   });
 
   it('should apply impulse when container is clicked', () => {
-    // Calculate the center of the canvas dynamically
+    // Calculate the center of the canvas dynamically.
     cy.get('canvas').then($canvas => {
       const rect = $canvas[0].getBoundingClientRect();
       const centerX = rect.width / 2;
       const centerY = rect.height / 2;
       cy.wrap($canvas).click(centerX, centerY);
     });
-
-    // Verify that the container sphere's velocity has been updated.
     cy.window().then((win: any) => {
       // Assuming the container is the first sensor sphere.
       const containerVelocity = win.engine.sensorSpheres[0].velocity;
-      // Expect that the y-component of the container velocity is now greater than 0.
+      // Expect that the y-component of container velocity is now greater than 0.
       expect(containerVelocity.y).to.be.greaterThan(0);
     });
   });
 
-  // Additional test for slider interaction:
   it('should update simulation time step when GUI slider is adjusted', () => {
-    // Find the slider (may require using cy.get with a selector specific to lil-gui).
-    // For testing, we assume the slider label "Time Step" is present, and it updates engine.deltaTime.
-    cy.contains('Time Step').then($el => {
-      // Simulate a slider change by triggering an input event if possible:
-      // This approach depends on your lil-gui DOM structure.
-      // For demonstration, we directly verify via window.engine:
+    cy.contains('Time Step').then(_el => {
       cy.window().then((win: any) => {
         // Update deltaTime via our global engine object.
         win.engine.deltaTime = 0.08;
@@ -148,18 +117,12 @@ describe('Quantum Sensor Sim Visual Demo', () => {
     });
   });
 
-  // Test for Impulse Strength slider using the GUI:
   it('should update impulse strength when GUI slider is adjusted', () => {
-    // Locate the GUI element for "Impulse Strength".
     cy.contains('Impulse Strength')
-      .parent() // Navigate to the container for the control.
+      .parent()
       .find('input')
       .then($input => {
-        // Capture the initial value.
-        const initialVal = $input.val();
-        // Set the slider value to 5.
         cy.wrap($input).invoke('val', 5).trigger('input');
-        // Check that the input's value has been updated to '5'.
         cy.wrap($input).invoke('val').should('equal', '5');
       });
   });

@@ -13,17 +13,16 @@ export class GravitySimulator {
    * @param sensorA - The sensor on which the force is acting.
    * @param sensorB - The sensor exerting the force.
    * @returns The gravitational force vector exerted on sensorA by sensorB.
+   * @throws Error if the distance between sensors is zero.
    */
   public static calculateGravitationalForce(
     sensorA: Sensor,
     sensorB: Sensor
   ): Vector3 {
     const G = Constants.GRAVITATIONAL_CONSTANT;
-
     const distanceVector = sensorB.position.subtract(sensorA.position);
     const distance = distanceVector.magnitude();
 
-    // Avoid division by zero
     if (distance === 0) {
       throw new Error('Distance between sensors cannot be zero.');
     }
@@ -31,9 +30,7 @@ export class GravitySimulator {
     const forceMagnitude =
       (G * sensorA.mass * sensorB.mass) / (distance * distance);
     const forceDirection = distanceVector.normalize();
-    const force = forceDirection.multiplyScalar(forceMagnitude);
-
-    return force;
+    return forceDirection.multiplyScalar(forceMagnitude);
   }
 
   /**
@@ -45,15 +42,18 @@ export class GravitySimulator {
     sensors: Sensor[],
     deltaTime: number
   ): void {
-    // Create a map to store total forces on each sensor to avoid modifying sensor properties during iteration
     const forcesMap: Map<string, Vector3> = new Map();
 
-    // Initialize forces map
     sensors.forEach(sensor => {
-      forcesMap.set(sensor.id, new Vector3());
+      if (sensor.id) {
+        forcesMap.set(sensor.id, Vector3.zero());
+      } else {
+        console.warn(
+          'Sensor with no id encountered during force initialization.'
+        );
+      }
     });
 
-    // Calculate gravitational forces between all pairs of sensors
     for (let i = 0; i < sensors.length; i++) {
       for (let j = i + 1; j < sensors.length; j++) {
         const sensorA = sensors[i];
@@ -66,9 +66,27 @@ export class GravitySimulator {
           );
           const forceOnB = forceOnA.multiplyScalar(-1); // Newton's Third Law
 
-          // Accumulate forces
-          forcesMap.set(sensorA.id, forcesMap.get(sensorA.id)!.add(forceOnA));
-          forcesMap.set(sensorB.id, forcesMap.get(sensorB.id)!.add(forceOnB));
+          if (sensorA.id && forcesMap.has(sensorA.id)) {
+            const currentForceA = forcesMap.get(sensorA.id);
+            if (currentForceA !== undefined) {
+              forcesMap.set(sensorA.id, currentForceA.add(forceOnA));
+            }
+          } else {
+            console.warn(
+              `SensorA with id ${sensorA.id} not found in forces map.`
+            );
+          }
+
+          if (sensorB.id && forcesMap.has(sensorB.id)) {
+            const currentForceB = forcesMap.get(sensorB.id);
+            if (currentForceB !== undefined) {
+              forcesMap.set(sensorB.id, currentForceB.add(forceOnB));
+            }
+          } else {
+            console.warn(
+              `SensorB with id ${sensorB.id} not found in forces map.`
+            );
+          }
         } catch (error) {
           if (error instanceof Error) {
             console.error(error.message);
@@ -80,20 +98,17 @@ export class GravitySimulator {
       }
     }
 
-    // Apply forces to sensors
     sensors.forEach(sensor => {
-      const netForce = forcesMap.get(sensor.id)!;
-
-      // Update sensor's acceleration based on the net force
-      const acceleration = netForce.multiplyScalar(1 / sensor.mass);
-
-      // Update velocity and position
-      sensor.velocity = sensor.velocity.add(
-        acceleration.multiplyScalar(deltaTime)
-      );
-      sensor.position = sensor.position.add(
-        sensor.velocity.multiplyScalar(deltaTime)
-      );
+      const netForce = forcesMap.get(sensor.id || '');
+      if (netForce) {
+        const acceleration = netForce.multiplyScalar(1 / sensor.mass);
+        sensor.velocity = sensor.velocity.add(
+          acceleration.multiplyScalar(deltaTime)
+        );
+        sensor.position = sensor.position.add(
+          sensor.velocity.multiplyScalar(deltaTime)
+        );
+      }
     });
   }
 

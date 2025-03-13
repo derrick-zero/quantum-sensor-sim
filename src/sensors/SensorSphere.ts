@@ -18,6 +18,7 @@ export class SensorSphere {
   public velocity: Vector3;
   public acceleration: Vector3;
   public state: SensorState;
+  public color: string;
 
   /**
    * Creates a new SensorSphere instance.
@@ -45,6 +46,9 @@ export class SensorSphere {
 
     this.initializeSensors(sensorCount);
     this.computeMass();
+    // Compute and assign the sensor sphere's color from the average sensor charge.
+    const avgCharge = this.computeAverageCharge();
+    this.color = this.computeColor(avgCharge);
   }
 
   /**
@@ -81,8 +85,48 @@ export class SensorSphere {
   }
 
   /**
+   * Computes the average sensor charge within the sphere.
+   * @returns The average charge (or 0 if no sensors).
+   */
+  private computeAverageCharge(): number {
+    if (this.sensors.length === 0) return 0;
+    const totalCharge = this.sensors.reduce(
+      (sum, sensor) => sum + sensor.charge,
+      0
+    );
+    return totalCharge / this.sensors.length;
+  }
+
+  /**
+   * Computes the color of the sensor sphere based on the provided charge value.
+   * Uses continuous HSL interpolation:
+   * - For charge === 0, returns "#FFFFFF" (neutral).
+   * - For positive charge, normalized charge maps linearly from hue 30° (low) to 0° (high).
+   * - For negative charge, normalized charge maps linearly from hue 180° (low) to 240° (high).
+   * @param charge - The average charge value used to compute color.
+   * @returns A CSS HSL color string.
+   */
+  private computeColor(charge: number): string {
+    if (charge === 0) return '#FFFFFF';
+
+    const maxCharge = Constants.MAX_SENSOR_CHARGE;
+    const normalizedCharge = Math.min(Math.abs(charge) / maxCharge, 1);
+
+    let hue: number;
+    if (charge > 0) {
+      // Map from 30° to 0°.
+      hue = 30 - 30 * normalizedCharge;
+    } else {
+      // Map from 180° to 240°.
+      hue = 180 + 60 * normalizedCharge;
+    }
+    return `hsl(${Math.round(hue)}, 100%, 50%)`;
+  }
+
+  /**
    * Updates the sphere's kinematics (velocity, center) and each sensor's state.
-   * @param deltaTime - Time step (s); must be > 0.
+   * Also recomputes the sphere's mass and color based on the average sensor charge.
+   * @param deltaTime - Time step in seconds; must be > 0.
    * @throws Error if deltaTime <= 0.
    */
   public update(deltaTime: number): void {
@@ -90,20 +134,27 @@ export class SensorSphere {
       throw new Error('Delta time must be greater than zero.');
     }
 
-    // Update sphere's velocity and center.
+    // Update the sphere's kinematics.
     this.velocity = this.velocity.add(
       this.acceleration.multiplyScalar(deltaTime)
     );
     this.center = this.center.add(this.velocity.multiplyScalar(deltaTime));
     this.acceleration = Vector3.zero();
 
-    // Update each sensor's position relative to the sphere's movement.
+    // Update each sensor's position relative to the sphere's movement and update its state.
     for (const sensor of this.sensors) {
       sensor.position = sensor.position.add(
         this.velocity.multiplyScalar(deltaTime)
       );
       sensor.update(deltaTime);
     }
+
+    // (Optional) Recompute sphere mass in case sensor states have changed.
+    this.computeMass();
+
+    // Update the sphere's visual color based on the average sensor charge.
+    const avgCharge = this.computeAverageCharge();
+    this.color = this.computeColor(avgCharge);
   }
 
   /**

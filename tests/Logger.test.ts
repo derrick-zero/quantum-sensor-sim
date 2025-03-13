@@ -32,6 +32,7 @@ describe('Logger Class Unit Tests', () => {
   });
 
   test('Should log messages at INFO level and above', () => {
+    // eslint-disable-next-line no-console
     console.info = jest.fn();
     console.warn = jest.fn();
     console.error = jest.fn();
@@ -40,6 +41,7 @@ describe('Logger Class Unit Tests', () => {
     Logger.warn('Warning message');
     Logger.error('Error message');
 
+    // eslint-disable-next-line no-console
     expect(console.info).toHaveBeenCalledWith(expect.stringContaining('INFO'));
     expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('WARN'));
     expect(console.error).toHaveBeenCalledWith(
@@ -48,23 +50,29 @@ describe('Logger Class Unit Tests', () => {
   });
 
   test('Should not log DEBUG messages when level is INFO', () => {
+    // eslint-disable-next-line no-console
     console.debug = jest.fn();
     Logger.debug('Debug message');
+    // eslint-disable-next-line no-console
     expect(console.debug).not.toHaveBeenCalled();
   });
 
   test('Should log DEBUG messages when level is DEBUG', () => {
     Logger.configure({ level: LogLevel.DEBUG });
+    // eslint-disable-next-line no-console
     console.debug = jest.fn();
     Logger.debug('Debug message');
+    // eslint-disable-next-line no-console
     expect(console.debug).toHaveBeenCalledWith(
       expect.stringContaining('DEBUG')
     );
   });
 
   test('Should include context information in logs', () => {
+    // eslint-disable-next-line no-console
     console.info = jest.fn();
     Logger.info('Context message', 'TestContext');
+    // eslint-disable-next-line no-console
     expect(console.info).toHaveBeenCalledWith(
       expect.stringContaining('[TestContext]')
     );

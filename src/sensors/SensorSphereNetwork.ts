@@ -1,8 +1,8 @@
 import { SensorSphere } from './SensorSphere';
-import { Vector3 } from '../core/Vector3';
+// import { Vector3 } from '../core/Vector3';
 import { SensorState } from './SensorState';
 import { Logger } from '../core/Logger';
-import { Constants } from '../core/Constants';
+// import { Constants } from '../core/Constants';
 
 /**
  * Represents a network of sensor spheres.

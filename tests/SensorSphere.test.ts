@@ -32,6 +32,17 @@ describe('SensorSphere Class Unit Tests', () => {
     expect(sphere.mass).toBeCloseTo(expectedMass);
   });
 
+  test('Default SensorSphere constructor parameters assign correct values', () => {
+    // Create a SensorSphere with only the id provided; the other parameters should default.
+    const sphere = new SensorSphere('DefaultSphere');
+    // By default, center should be (0,0,0).
+    expect(sphere.center).toEqual(new Vector3(0, 0, 0));
+    // Default radius should be 1.0.
+    expect(sphere.radius).toEqual(1.0);
+    // Default sensorCount is 100, so 100 sensors should be initialized.
+    expect(sphere.sensors.length).toEqual(100);
+  });
+
   test('computeMass correctly sums sensor masses after adding a sensor', () => {
     const sphere = new SensorSphere('Sphere2', new Vector3(0, 0, 0), 1.0, 0);
     expect(sphere.mass).toEqual(0);
@@ -39,6 +50,133 @@ describe('SensorSphere Class Unit Tests', () => {
     sphere.addSensor(sensor);
     expect(sphere.sensors.length).toEqual(1);
     expect(sphere.mass).toBeCloseTo(sensor.mass);
+  });
+
+  test('Default SensorSphere generates sensors with neutral color', () => {
+    // By default, sensors have charge 0, so each sensor’s computeColor returns "#FFFFFF"
+    const sphere = new SensorSphere('DefaultSphere', new Vector3(), 5, 20);
+    sphere.sensors.forEach(sensor => {
+      expect(sensor.color).toEqual('#FFFFFF');
+    });
+    // The sphere's own color is computed from the average sensor charge.
+    // Average of 20 zeros is 0, so sphere color should be neutral.
+    expect(sphere.color).toEqual('#FFFFFF');
+  });
+
+  test('SensorSphere color is computed correctly for all positive sensors', () => {
+    // Create a sphere with no initial sensors.
+    const sphere = new SensorSphere(
+      'PosSphere',
+      new Vector3(),
+      5,
+      0,
+      SensorState.ACTIVE
+    );
+    // Manually create and add two sensors with charge 5.
+    const sensorPos1 = new Sensor(
+      'Pos1',
+      new Vector3(1, 1, 1),
+      Vector3.zero(),
+      1,
+      5,
+      SensorState.ACTIVE
+    );
+    const sensorPos2 = new Sensor(
+      'Pos2',
+      new Vector3(2, 2, 2),
+      Vector3.zero(),
+      1,
+      5,
+      SensorState.ACTIVE
+    );
+    sphere.addSensor(sensorPos1);
+    sphere.addSensor(sensorPos2);
+    // Average charge = (5 + 5) / 2 = 5, normalized = 5/10 = 0.5, hue = 30 - (30*0.5)=15.
+    const expectedColor = 'hsl(15, 100%, 50%)';
+    // Force a recalculation (simulate an update cycle).
+    sphere.computeMass();
+    const avg = sphere['computeAverageCharge'](); // using bracket access to call private method for test purposes only.
+    const computedColor = sphere['computeColor'](avg);
+    expect(computedColor).toEqual(expectedColor);
+    // Alternatively, if we assume update() calls our color update, we can call update() and check sphere.color:
+    sphere.update(0.1);
+    expect(sphere.color).toEqual(expectedColor);
+  });
+
+  test('SensorSphere color is computed correctly for all negative sensors', () => {
+    const sphere = new SensorSphere(
+      'NegSphere',
+      new Vector3(),
+      5,
+      0,
+      SensorState.ACTIVE
+    );
+    const sensorNeg1 = new Sensor(
+      'Neg1',
+      new Vector3(1, 1, 1),
+      Vector3.zero(),
+      1,
+      -5,
+      SensorState.ACTIVE
+    );
+    const sensorNeg2 = new Sensor(
+      'Neg2',
+      new Vector3(2, 2, 2),
+      Vector3.zero(),
+      1,
+      -5,
+      SensorState.ACTIVE
+    );
+    sphere.addSensor(sensorNeg1);
+    sphere.addSensor(sensorNeg2);
+    // For charge = -5, normalized = 0.5, hue = 180 + (60*0.5)=210.
+    const expectedColor = 'hsl(210, 100%, 50%)';
+    sphere.computeMass();
+    const avg = sphere['computeAverageCharge']();
+    const computedColor = sphere['computeColor'](avg);
+    expect(computedColor).toEqual(expectedColor);
+    sphere.update(0.1);
+    expect(sphere.color).toEqual(expectedColor);
+  });
+
+  test('SensorSphere color is computed correctly for mixed sensor charges', () => {
+    const sphere = new SensorSphere(
+      'MixedSphere',
+      new Vector3(),
+      5,
+      0,
+      SensorState.ACTIVE
+    );
+    // Add one sensor with positive charge and one with negative charge.
+    // For example, one with +5 and one with -3. Average = (5 + (-3)) / 2 = 1.
+    const sensor1 = new Sensor(
+      'Mixed1',
+      new Vector3(),
+      Vector3.zero(),
+      1,
+      5,
+      SensorState.ACTIVE
+    );
+    const sensor2 = new Sensor(
+      'Mixed2',
+      new Vector3(),
+      Vector3.zero(),
+      1,
+      -3,
+      SensorState.ACTIVE
+    );
+    sphere.addSensor(sensor1);
+    sphere.addSensor(sensor2);
+    // Average charge = 1. (normalized = 1/10 = 0.1)
+    // Since the average is positive (1 > 0), we use positive mapping:
+    // Hue = 30 - (30 * 0.1) = 30 - 3 = 27.
+    const expectedColor = 'hsl(27, 100%, 50%)';
+    sphere.computeMass();
+    const avg = sphere['computeAverageCharge']();
+    const computedColor = sphere['computeColor'](avg);
+    expect(computedColor).toEqual(expectedColor);
+    sphere.update(0.1);
+    expect(sphere.color).toEqual(expectedColor);
   });
 
   test('update method updates sphere center and sensor positions', () => {
@@ -61,7 +199,7 @@ describe('SensorSphere Class Unit Tests', () => {
       // We assume minimal sensor internal update changes if sensors started at their generated positions.
       // Check that sensor.position has changed by approximately the same amount as sphere velocity.
       // (Since sensors are updated with sphere velocity added.)
-      const expectedDelta = sphere.velocity;
+
       // We can't directly know the original sensor positions unless we store them first.
       // So we check that sensor.position's change is non-zero.
       expect(sensor.position.x).not.toBeCloseTo(0, 2);
@@ -127,6 +265,21 @@ describe('SensorSphere Class Unit Tests', () => {
       }
     }
     expect(changed).toBe(true);
+  });
+
+  test('setState defaults propagateToSensors to true', () => {
+    // Create a sensor sphere with a small sensor count for simplicity.
+    const sphere = new SensorSphere('TestSphere', new Vector3(), 5, 5);
+    // Let’s set all sensors to ACTIVE initially.
+    sphere.sensors.forEach(sensor => sensor.setState(SensorState.ACTIVE));
+    // Now call setState without providing propagateToSensors (defaults to true).
+    sphere.setState(SensorState.MAINTENANCE);
+    // Expect the sphere's state to be updated.
+    expect(sphere.state).toEqual(SensorState.MAINTENANCE);
+    // Every sensor within the sphere should also have the new state.
+    sphere.sensors.forEach(sensor => {
+      expect(sensor.state).toEqual(SensorState.MAINTENANCE);
+    });
   });
 
   test('setState should propagate state to all sensors when flag is true', () => {
@@ -224,6 +377,7 @@ describe('SensorSphere Class Unit Tests', () => {
 
   test('calculateInteractions should log debug information', () => {
     const sphere = new SensorSphere('Sphere12', new Vector3(), 1.0, 10);
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     const debugSpy = jest.spyOn(Logger, 'debug').mockImplementation(() => {});
     sphere.calculateInteractions();
     expect(debugSpy).toHaveBeenCalledWith(
@@ -231,5 +385,55 @@ describe('SensorSphere Class Unit Tests', () => {
       'SensorSphere.calculateInteractions'
     );
     debugSpy.mockRestore();
+  });
+
+  test('addSensor throws error when sensor is null or undefined', () => {
+    const sphere = new SensorSphere('TestSphere', new Vector3(), 5, 10);
+    // Test with null.
+    expect(() => {
+      sphere.addSensor(null as any);
+    }).toThrow('Sensor cannot be null or undefined.');
+    // Test with undefined.
+    expect(() => {
+      sphere.addSensor(undefined as any);
+    }).toThrow('Sensor cannot be null or undefined.');
+  });
+
+  test('rotate throws error when axis is null', () => {
+    const sphere = new SensorSphere('TestSphere', new Vector3(), 5, 10);
+    expect(() => {
+      sphere.rotate(null as any, Math.PI / 2);
+    }).toThrow('Axis and angle must be provided.');
+  });
+
+  test('rotate throws error when angle is undefined', () => {
+    const sphere = new SensorSphere('TestSphere', new Vector3(), 5, 10);
+    expect(() => {
+      sphere.rotate(new Vector3(1, 0, 0), undefined as any);
+    }).toThrow('Axis and angle must be provided.');
+  });
+
+  test('vibrate throws error when amplitude is null', () => {
+    const sphere = new SensorSphere('TestSphere', new Vector3(), 5, 10);
+    expect(() => {
+      sphere.vibrate(null as any, new Vector3(1, 1, 1), 0.1);
+    }).toThrow('Amplitude, frequency, and deltaTime must be valid.');
+  });
+
+  test('vibrate throws error when frequency is null', () => {
+    const sphere = new SensorSphere('TestSphere', new Vector3(), 5, 10);
+    expect(() => {
+      sphere.vibrate(new Vector3(1, 1, 1), null as any, 0.1);
+    }).toThrow('Amplitude, frequency, and deltaTime must be valid.');
+  });
+
+  test('vibrate throws error when deltaTime is non-positive', () => {
+    const sphere = new SensorSphere('TestSphere', new Vector3(), 5, 10);
+    expect(() => {
+      sphere.vibrate(new Vector3(1, 1, 1), new Vector3(1, 1, 1), 0);
+    }).toThrow('Amplitude, frequency, and deltaTime must be valid.');
+    expect(() => {
+      sphere.vibrate(new Vector3(1, 1, 1), new Vector3(1, 1, 1), -0.1);
+    }).toThrow('Amplitude, frequency, and deltaTime must be valid.');
   });
 });

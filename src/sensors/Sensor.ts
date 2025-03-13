@@ -6,8 +6,9 @@ import { Logger } from '../core/Logger';
 /**
  * Represents an individual sensor used within the simulation.
  * Each sensor has physical properties (position, velocity, acceleration, mass, charge),
- * a state, a visual color determined by its charge, and additional dynamic attributes
- * such as vibration, rotation/wobble, and radiation that can be expanded over time.
+ * a state, and a visual color determined by its charge using continuous HSL mapping.
+ * Additional dynamic attributes (such as vibration, rotation/wobble, and radiation)
+ * are provided as placeholders for future enhancements.
  */
 export class Sensor {
   public id: string;
@@ -49,6 +50,7 @@ export class Sensor {
    * @param mass - The sensor's mass (must be > 0; default taken from Constants).
    * @param charge - The sensor's electrical charge (default taken from Constants).
    * @param state - The initial sensor state (default: ACTIVE).
+   * @throws Error if mass is <= 0.
    */
   constructor(
     id: string,
@@ -83,7 +85,7 @@ export class Sensor {
     this.wobbleFrequency = 0;
 
     // Initialize radiation properties.
-    this.temperature = 0; // If temperature is zero, sensor is non-radiative.
+    this.temperature = 0; // Sensor is non-radiative if temperature is zero.
     this.emissivity = Constants.DEFAULT_EMISSIVITY;
     this.radiatedEnergy = 0;
 
@@ -91,31 +93,40 @@ export class Sensor {
     this.radius = Constants.DEFAULT_SENSOR_RADIUS;
     this.spin = 0;
 
-    // Calculate and assign the sensor's initial color based on its charge.
+    // Compute and assign the sensor's initial color using continuous HSL mapping.
     this.color = this.computeColor(this.charge);
   }
 
   /**
-   * Computes the sensor's display color based on its electrical charge.
-   * - Neutral sensors (charge === 0) return NEUTRAL_COLOR.
-   * - Positive sensors choose a color randomly from POSITIVE_COLOR_PALETTE.
-   * - Negative sensors choose a color randomly from NEGATIVE_COLOR_PALETTE.
+   * Computes the sensor's display color based on its electrical charge using HSL interpolation.
+   * - For neutral sensors (charge === 0), returns a neutral color (#FFFFFF).
+   * - For positive sensors, maps the normalized charge (charge / MAX_SENSOR_CHARGE) to a hue
+   *   range from 30° (low positive) to 0° (high positive).
+   * - For negative sensors, maps the normalized charge (abs(charge) / MAX_SENSOR_CHARGE)
+   *   to a hue range from 180° (low negative) to 240° (high negative).
+   * Saturation is fixed at 100% and lightness at 50%.
    * @param charge - The sensor's electrical charge.
-   * @returns A hexadecimal color string.
+   * @returns A CSS HSL color string.
    */
   private computeColor(charge: number): string {
-    if (charge === 0) return Constants.NEUTRAL_COLOR;
-    const palette =
-      charge > 0
-        ? Constants.POSITIVE_COLOR_PALETTE
-        : Constants.NEGATIVE_COLOR_PALETTE;
-    const index = Math.floor(Math.random() * palette.length);
-    return palette[index];
+    if (charge === 0) return '#FFFFFF';
+
+    const maxCharge = Constants.MAX_SENSOR_CHARGE;
+    const normalizedCharge = Math.min(Math.abs(charge) / maxCharge, 1);
+    let hue: number;
+    if (charge > 0) {
+      // Positive charges yield hues from 30° (lower charge) down to 0° (higher charge).
+      hue = 30 - 30 * normalizedCharge;
+    } else {
+      // Negative charges yield hues from 180° (lower charge) up to 240° (higher charge magnitude).
+      hue = 180 + 60 * normalizedCharge;
+    }
+    return `hsl(${Math.round(hue)}, 100%, 50%)`;
   }
 
   /**
    * Applies a force vector to the sensor, updating its acceleration.
-   * F = m * a.
+   * Uses Newton's second law: F = m * a.
    * @param force - The force vector to apply.
    */
   public applyForce(force: Vector3): void {
@@ -125,22 +136,22 @@ export class Sensor {
 
   /**
    * Updates the sensor's state over a given time step.
-   * Updates velocity and position, then resets acceleration.
-   * Calls helper methods to update vibration, rotation, wobble, and radiation.
+   * Updates velocity and position, resets acceleration, and triggers dynamic behavior updates.
    * @param deltaTime - The time step in seconds (must be > 0).
+   * @throws Error if deltaTime is <= 0.
    */
   public update(deltaTime: number): void {
     if (deltaTime <= 0) {
       throw new Error('Delta time must be greater than zero.');
     }
-    // Update velocity and position based on current acceleration.
+    // Update velocity and position according to current acceleration.
     this.velocity = this.velocity.add(
       this.acceleration.multiplyScalar(deltaTime)
     );
     this.position = this.position.add(this.velocity.multiplyScalar(deltaTime));
     this.acceleration = Vector3.zero();
 
-    // Update dynamic behaviors.
+    // Placeholder for future dynamic behavior updates:
     this.updateVibration(deltaTime);
     this.updateRotation(deltaTime);
     this.updateWobble(deltaTime);
@@ -195,7 +206,7 @@ export class Sensor {
 
   /**
    * Calculates radiated energy over the time step using the Stefan-Boltzmann law.
-   * Approximates the sensor's surface area based on density and mass.
+   * Approximates sensor surface area based on mass and density.
    * @param deltaTime - The time step in seconds.
    */
   private calculateRadiation(deltaTime: number): void {
@@ -216,7 +227,7 @@ export class Sensor {
 
   /**
    * Computes external forces from neighboring sensors.
-   * This is a placeholder for future detailed force computations.
+   * Placeholder for future detailed force computations.
    * @param sensors - An array of neighboring sensors.
    */
   public calculateForces(sensors: Sensor[]): void {
@@ -228,7 +239,7 @@ export class Sensor {
             `Computing force between sensor ${this.id} and ${other.id}`,
             'Sensor.calculateForces'
           );
-          // Placeholder for force calculation.
+          // Placeholder logic for computing forces.
         } catch (error) {
           Logger.error(
             `Error calculating force: ${(error as Error).message}`,
@@ -242,6 +253,7 @@ export class Sensor {
   /**
    * Sets the sensor's state.
    * @param state - The new sensor state.
+   * @throws Error if state is null or undefined.
    */
   public setState(state: SensorState): void {
     if (!state) {
@@ -253,6 +265,7 @@ export class Sensor {
   /**
    * Adds a neighbor sensor for local interactions.
    * @param sensor - The neighbor sensor to add.
+   * @throws Error if sensor is null or undefined.
    */
   public addNeighbor(sensor: Sensor): void {
     if (!sensor) {

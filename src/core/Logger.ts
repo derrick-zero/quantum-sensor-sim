@@ -13,7 +13,7 @@ export enum LogLevel {
 /**
  * Logger configuration interface.
  */
-interface LoggerConfig {
+export interface LoggerConfig {
   level: LogLevel;
   logToFile: boolean;
   logFilePath: string;
@@ -98,9 +98,11 @@ export class Logger {
     // Log to console based on log level
     switch (level) {
       case LogLevel.DEBUG:
+        // eslint-disable-next-line no-console
         console.debug(formattedMessage);
         break;
       case LogLevel.INFO:
+        // eslint-disable-next-line no-console
         console.info(formattedMessage);
         break;
       case LogLevel.WARN:

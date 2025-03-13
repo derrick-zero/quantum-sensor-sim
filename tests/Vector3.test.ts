@@ -2,46 +2,53 @@
 
 import { Vector3 } from '../src/core/Vector3';
 
-describe('Vector3', () => {
-  test('constructor sets components correctly', () => {
+describe('Vector3 Class', () => {
+  test('constructor initializes components correctly', () => {
     const vec = new Vector3(1, 2, 3);
-    expect(vec.x).toBe(1);
-    expect(vec.y).toBe(2);
-    expect(vec.z).toBe(3);
+    expect(vec.x).toEqual(1);
+    expect(vec.y).toEqual(2);
+    expect(vec.z).toEqual(3);
+  });
+
+  test('default constructor creates zero vector', () => {
+    const vec = new Vector3();
+    expect(vec.x).toEqual(0);
+    expect(vec.y).toEqual(0);
+    expect(vec.z).toEqual(0);
   });
 
   test('add returns correct sum vector', () => {
     const v1 = new Vector3(1, 2, 3);
     const v2 = new Vector3(4, 5, 6);
     const sum = v1.add(v2);
-    expect(sum.x).toBe(5);
-    expect(sum.y).toBe(7);
-    expect(sum.z).toBe(9);
+    expect(sum.x).toEqual(5);
+    expect(sum.y).toEqual(7);
+    expect(sum.z).toEqual(9);
   });
 
   test('subtract returns correct difference vector', () => {
     const v1 = new Vector3(5, 7, 9);
     const v2 = new Vector3(1, 2, 3);
     const diff = v1.subtract(v2);
-    expect(diff.x).toBe(4);
-    expect(diff.y).toBe(5);
-    expect(diff.z).toBe(6);
+    expect(diff.x).toEqual(4);
+    expect(diff.y).toEqual(5);
+    expect(diff.z).toEqual(6);
   });
 
   test('multiplyScalar returns correctly scaled vector', () => {
     const vec = new Vector3(1, 2, 3);
     const scaled = vec.multiplyScalar(3);
-    expect(scaled.x).toBe(3);
-    expect(scaled.y).toBe(6);
-    expect(scaled.z).toBe(9);
+    expect(scaled.x).toEqual(3);
+    expect(scaled.y).toEqual(6);
+    expect(scaled.z).toEqual(9);
   });
 
   test('divideScalar returns correctly scaled vector', () => {
     const vec = new Vector3(2, 4, 6);
     const result = vec.divideScalar(2);
-    expect(result.x).toBe(1);
-    expect(result.y).toBe(2);
-    expect(result.z).toBe(3);
+    expect(result.x).toBeCloseTo(1);
+    expect(result.y).toBeCloseTo(2);
+    expect(result.z).toBeCloseTo(3);
   });
 
   test('divideScalar throws error when dividing by zero', () => {
@@ -62,7 +69,7 @@ describe('Vector3', () => {
     const a = new Vector3(1, 0, 0);
     const b = new Vector3(0, 1, 0);
     const cross = a.cross(b);
-    // Expected cross product: (0, 0, 1)
+    // Expected cross (1,0,0) x (0,1,0) = (0, 0, 1)
     expect(cross.x).toBeCloseTo(0);
     expect(cross.y).toBeCloseTo(0);
     expect(cross.z).toBeCloseTo(1);
@@ -83,45 +90,64 @@ describe('Vector3', () => {
   });
 
   test('normalize throws error for zero-length vector', () => {
-    const zeroVector = new Vector3(0, 0, 0);
-    expect(() => zeroVector.normalize()).toThrow(
+    const zeroVec = new Vector3(0, 0, 0);
+    expect(() => zeroVec.normalize()).toThrow(
       'Cannot normalize a zero-length vector.'
     );
   });
 
-  test('distanceTo returns correct distance', () => {
-    const pointA = new Vector3(1, 1, 1);
-    const pointB = new Vector3(4, 5, 1);
-    // Distance should be sqrt((3)^2 + (4)^2 + 0^2) = 5
-    expect(pointA.distanceTo(pointB)).toBeCloseTo(5);
+  test('distanceTo returns correct distance between two vectors', () => {
+    const a = new Vector3(1, 1, 1);
+    const b = new Vector3(4, 5, 1);
+    // Distance = sqrt( (3)^2 + (4)^2 + (0)^2 ) = 5
+    expect(a.distanceTo(b)).toBeCloseTo(5);
   });
 
-  test('clone returns an identical vector and does not affect the original', () => {
+  test('clone returns an identical but separate vector', () => {
     const vec = new Vector3(1, 2, 3);
     const copy = vec.clone();
-    expect(copy.x).toBe(vec.x);
-    expect(copy.y).toBe(vec.y);
-    expect(copy.z).toBe(vec.z);
-    // Ensure it is a separate instance
+    expect(copy).toEqual(vec);
     copy.x = 10;
-    expect(vec.x).toBe(1);
+    expect(vec.x).toEqual(1); // Original remains unchanged.
+  });
+
+  test('copy mutates the target vector and returns the same instance', () => {
+    const target = new Vector3();
+    const source = new Vector3(4, 5, 6);
+    const returned = target.copy(source);
+    // target should now have the same components as source.
+    expect(target).toEqual(source);
+    // The returned object is exactly the same instance as target.
+    expect(returned).toBe(target);
   });
 
   test('set updates vector components correctly', () => {
     const vec = new Vector3();
     vec.set(7, 8, 9);
-    expect(vec.x).toBe(7);
-    expect(vec.y).toBe(8);
-    expect(vec.z).toBe(9);
+    expect(vec.x).toEqual(7);
+    expect(vec.y).toEqual(8);
+    expect(vec.z).toEqual(9);
   });
 
   test('rotateAroundAxis rotates vector correctly', () => {
     const vec = new Vector3(1, 0, 0);
+    // Rotate around Z-axis by 90°: expect (0,1,0)
     const axis = new Vector3(0, 0, 1).normalize();
     const rotated = vec.rotateAroundAxis(axis, Math.PI / 2);
-    // Rotating (1,0,0) around the Z-axis by 90° should give (0,1,0)
     expect(rotated.x).toBeCloseTo(0, 5);
     expect(rotated.y).toBeCloseTo(1, 5);
     expect(rotated.z).toBeCloseTo(0, 5);
+  });
+
+  test('zero returns a vector with all components zero', () => {
+    const zeroVec = Vector3.zero();
+    expect(zeroVec.x).toEqual(0);
+    expect(zeroVec.y).toEqual(0);
+    expect(zeroVec.z).toEqual(0);
+  });
+
+  test('toArray returns an array of components', () => {
+    const vec = new Vector3(3.5, -2.1, 7.8);
+    expect(vec.toArray()).toEqual([3.5, -2.1, 7.8]);
   });
 });

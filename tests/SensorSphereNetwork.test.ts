@@ -2,10 +2,10 @@
 
 import { SensorSphereNetwork } from '../src/sensors/SensorSphereNetwork';
 import { SensorSphere } from '../src/sensors/SensorSphere';
-import { Sensor } from '../src/sensors/Sensor';
+// import { Sensor } from '../src/sensors/Sensor';
 import { SensorState } from '../src/sensors/SensorState';
 import { Vector3 } from '../src/core/Vector3';
-import { Constants } from '../src/core/Constants';
+// import { Constants } from '../src/core/Constants';
 import { Logger } from '../src/core/Logger';
 
 describe('SensorSphereNetwork Class Unit Tests', () => {
@@ -151,6 +151,7 @@ describe('SensorSphereNetwork Class Unit Tests', () => {
       SensorState.ACTIVE
     );
     const network = new SensorSphereNetwork([sphere1, sphere2]);
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     const debugSpy = jest.spyOn(Logger, 'debug').mockImplementation(() => {});
     network.calculateInteractions();
     // Adjust expectation to look for "Calculating interaction" (singular) in the message.
