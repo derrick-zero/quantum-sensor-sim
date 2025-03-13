@@ -1,5 +1,6 @@
 /// <reference types="jest" />
 
+import { expect } from '@jest/globals';
 import { GravitySimulator } from '../src/gravity/GravitySimulator';
 import { Sensor } from '../src/sensors/Sensor';
 import { Vector3 } from '../src/core/Vector3';

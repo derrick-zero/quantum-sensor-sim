@@ -7,8 +7,8 @@ import { Logger } from '../core/Logger';
  * Represents an individual sensor used within the simulation.
  * Each sensor has physical properties (position, velocity, acceleration, mass, charge),
  * a state, and a visual color determined by its charge using continuous HSL mapping.
- * Additional dynamic attributes (such as vibration, rotation/wobble, and radiation)
- * are provided as placeholders for future enhancements.
+ * Additional dynamic attributes (e.g., vibration, rotation/wobble, radiation)
+ * can be expanded in the future.
  */
 export class Sensor {
   public id: string;
@@ -21,24 +21,24 @@ export class Sensor {
   public color: string;
   public neighbors: Sensor[];
 
-  // Vibration properties.
+  // Vibration properties
   public vibrationAmplitude: Vector3;
   public vibrationFrequency: Vector3;
   public vibrationPhase: Vector3;
 
-  // Rotation and wobble properties.
+  // Rotation and wobble properties
   public rotationAxis: Vector3;
   public rotationAngle: number;
   public rotationSpeed: number;
   public wobbleAmplitude: number;
   public wobbleFrequency: number;
 
-  // Radiation properties.
+  // Radiation properties
   public temperature: number;
   public emissivity: number;
   public radiatedEnergy: number;
 
-  // Extra dynamic properties.
+  // Extra dynamic properties
   public radius: number; // For collision detection.
   public spin: number; // Angular velocity (radians per second).
 
@@ -47,10 +47,10 @@ export class Sensor {
    * @param id - A unique identifier for the sensor.
    * @param position - The initial position (default is origin).
    * @param velocity - The initial velocity (default: zero vector).
-   * @param mass - The sensor's mass (must be > 0; default taken from Constants).
-   * @param charge - The sensor's electrical charge (default taken from Constants).
+   * @param mass - The sensor's mass (must be > 0; default from Constants).
+   * @param charge - The sensor's electrical charge (default from Constants).
    * @param state - The initial sensor state (default: ACTIVE).
-   * @throws Error if mass is <= 0.
+   * @throws Error if mass <= 0.
    */
   constructor(
     id: string,
@@ -85,7 +85,7 @@ export class Sensor {
     this.wobbleFrequency = 0;
 
     // Initialize radiation properties.
-    this.temperature = 0; // Sensor is non-radiative if temperature is zero.
+    this.temperature = 0; // Non-radiative by default.
     this.emissivity = Constants.DEFAULT_EMISSIVITY;
     this.radiatedEnergy = 0;
 
@@ -99,29 +99,32 @@ export class Sensor {
 
   /**
    * Computes the sensor's display color based on its electrical charge using HSL interpolation.
-   * - For neutral sensors (charge === 0), returns a neutral color (#FFFFFF).
-   * - For positive sensors, maps the normalized charge (charge / MAX_SENSOR_CHARGE) to a hue
-   *   range from 30° (low positive) to 0° (high positive).
-   * - For negative sensors, maps the normalized charge (abs(charge) / MAX_SENSOR_CHARGE)
-   *   to a hue range from 180° (low negative) to 240° (high negative).
+   * - For charge === 0, returns "#FFFFFF".
+   * - For positive charge, normalized value maps from hue 30° (low) to 0° (high).
+   * - For negative charge, normalized value maps from hue 180° (low) to 240° (high).
    * Saturation is fixed at 100% and lightness at 50%.
-   * @param charge - The sensor's electrical charge.
+   * @param charge - The sensor's charge.
    * @returns A CSS HSL color string.
    */
   private computeColor(charge: number): string {
     if (charge === 0) return '#FFFFFF';
-
     const maxCharge = Constants.MAX_SENSOR_CHARGE;
     const normalizedCharge = Math.min(Math.abs(charge) / maxCharge, 1);
     let hue: number;
     if (charge > 0) {
-      // Positive charges yield hues from 30° (lower charge) down to 0° (higher charge).
       hue = 30 - 30 * normalizedCharge;
     } else {
-      // Negative charges yield hues from 180° (lower charge) up to 240° (higher charge magnitude).
       hue = 180 + 60 * normalizedCharge;
     }
     return `hsl(${Math.round(hue)}, 100%, 50%)`;
+  }
+
+  /**
+   * Public method to update the sensor's color.
+   * Call this after updating the sensor's charge to refresh its color.
+   */
+  public updateColor(): void {
+    this.color = this.computeColor(this.charge);
   }
 
   /**
@@ -136,22 +139,21 @@ export class Sensor {
 
   /**
    * Updates the sensor's state over a given time step.
-   * Updates velocity and position, resets acceleration, and triggers dynamic behavior updates.
-   * @param deltaTime - The time step in seconds (must be > 0).
-   * @throws Error if deltaTime is <= 0.
+   * Updates velocity and position, resets acceleration, and triggers placeholders for dynamic behaviors.
+   * @param deltaTime - Time step in seconds (must be > 0).
+   * @throws Error if deltaTime <= 0.
    */
   public update(deltaTime: number): void {
     if (deltaTime <= 0) {
       throw new Error('Delta time must be greater than zero.');
     }
-    // Update velocity and position according to current acceleration.
     this.velocity = this.velocity.add(
       this.acceleration.multiplyScalar(deltaTime)
     );
     this.position = this.position.add(this.velocity.multiplyScalar(deltaTime));
     this.acceleration = Vector3.zero();
 
-    // Placeholder for future dynamic behavior updates:
+    // Update dynamic behaviors (placeholders for future enhancements)
     this.updateVibration(deltaTime);
     this.updateRotation(deltaTime);
     this.updateWobble(deltaTime);
@@ -186,7 +188,7 @@ export class Sensor {
 
   /**
    * Updates the sensor's rotation angle based on its rotation speed.
-   * @param deltaTime - The time step in seconds.
+   * @param deltaTime - Time step in seconds.
    */
   private updateRotation(deltaTime: number): void {
     this.rotationAngle += this.rotationSpeed * deltaTime;
@@ -195,7 +197,7 @@ export class Sensor {
 
   /**
    * Applies a wobble effect by perturbing the rotation angle.
-   * @param deltaTime - The time step in seconds.
+   * @param deltaTime - Time step in seconds.
    */
   private updateWobble(deltaTime: number): void {
     const wobbleDelta =
@@ -206,7 +208,7 @@ export class Sensor {
 
   /**
    * Calculates radiated energy over the time step using the Stefan-Boltzmann law.
-   * Approximates sensor surface area based on mass and density.
+   * Approximates the sensor's surface area based on mass and density.
    * @param deltaTime - The time step in seconds.
    */
   private calculateRadiation(deltaTime: number): void {
@@ -227,7 +229,7 @@ export class Sensor {
 
   /**
    * Computes external forces from neighboring sensors.
-   * Placeholder for future detailed force computations.
+   * This is a placeholder for future detailed force computations.
    * @param sensors - An array of neighboring sensors.
    */
   public calculateForces(sensors: Sensor[]): void {
@@ -236,10 +238,10 @@ export class Sensor {
       if (other.id !== this.id) {
         try {
           Logger.debug(
-            `Computing force between sensor ${this.id} and ${other.id}`,
+            `Computing force between sensor ${this.id} and sensor ${other.id}`,
             'Sensor.calculateForces'
           );
-          // Placeholder logic for computing forces.
+          // Placeholder for force calculation.
         } catch (error) {
           Logger.error(
             `Error calculating force: ${(error as Error).message}`,

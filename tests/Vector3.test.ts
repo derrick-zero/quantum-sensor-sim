@@ -1,5 +1,6 @@
 /// <reference types="jest" />
 
+import { expect } from '@jest/globals';
 import { Vector3 } from '../src/core/Vector3';
 
 describe('Vector3 Class', () => {

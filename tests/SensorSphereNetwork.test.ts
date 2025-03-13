@@ -1,5 +1,6 @@
 /// <reference types="jest" />
 
+import { expect } from '@jest/globals';
 import { SensorSphereNetwork } from '../src/sensors/SensorSphereNetwork';
 import { SensorSphere } from '../src/sensors/SensorSphere';
 // import { Sensor } from '../src/sensors/Sensor';

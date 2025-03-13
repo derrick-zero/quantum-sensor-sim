@@ -1,3 +1,6 @@
+/// <reference types="jest" />
+
+import { expect } from '@jest/globals';
 import { ElectricField } from '../src/electricity/ElectricField';
 import { Sensor } from '../src/sensors/Sensor';
 import { Vector3 } from '../src/core/Vector3';

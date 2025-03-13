@@ -1,5 +1,6 @@
 /// <reference types="jest" />
 
+import { expect } from '@jest/globals';
 import { Constants } from '../src/core/Constants';
 
 describe('Constants', () => {

@@ -1,5 +1,6 @@
 /// <reference types="jest" />
 
+import { expect } from '@jest/globals';
 import { Utils } from '../src/core/Utils';
 import { Vector3 } from '../src/core/Vector3';
 

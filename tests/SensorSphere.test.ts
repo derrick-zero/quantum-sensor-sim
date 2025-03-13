@@ -1,5 +1,6 @@
 /// <reference types="jest" />
 
+import { expect } from '@jest/globals';
 import { SensorSphere } from '../src/sensors/SensorSphere';
 import { Sensor } from '../src/sensors/Sensor';
 import { SensorState } from '../src/sensors/SensorState';
@@ -15,6 +16,7 @@ describe('SensorSphere Class Unit Tests', () => {
     Math.random = originalMathRandom;
   });
 
+  // Constructor Tests
   test('constructor initializes correct number of sensors and computes mass', () => {
     const sensorCount = 50;
     const sphere = new SensorSphere(
@@ -43,6 +45,7 @@ describe('SensorSphere Class Unit Tests', () => {
     expect(sphere.sensors.length).toEqual(100);
   });
 
+  // Method Tests
   test('computeMass correctly sums sensor masses after adding a sensor', () => {
     const sphere = new SensorSphere('Sphere2', new Vector3(0, 0, 0), 1.0, 0);
     expect(sphere.mass).toEqual(0);
@@ -387,6 +390,7 @@ describe('SensorSphere Class Unit Tests', () => {
     debugSpy.mockRestore();
   });
 
+  // Error Handling Tests
   test('addSensor throws error when sensor is null or undefined', () => {
     const sphere = new SensorSphere('TestSphere', new Vector3(), 5, 10);
     // Test with null.

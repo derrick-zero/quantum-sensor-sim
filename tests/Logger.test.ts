@@ -1,5 +1,6 @@
 /// <reference types="jest" />
 
+import { expect } from '@jest/globals';
 import * as fs from 'fs';
 import { Logger, LogLevel } from '../src/core/Logger';
 

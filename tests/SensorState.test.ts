@@ -1,5 +1,6 @@
 /// <reference types="jest" />
 
+import { expect } from '@jest/globals';
 import { SensorState } from '../src/sensors/SensorState';
 
 describe('SensorState Enum', () => {
