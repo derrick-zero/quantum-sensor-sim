@@ -1,127 +1,143 @@
-<!DOCTYPE html><html class="default" lang="en"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>quantum-sensor-sim</title><meta name="description" content="Documentation for quantum-sensor-sim"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="assets/style.css"/><link rel="stylesheet" href="assets/highlight.css"/><script defer src="assets/main.js"></script><script async src="assets/icons.js" id="tsd-icons-script"></script><script async src="assets/search.js" id="tsd-search-script"></script><script async src="assets/navigation.js" id="tsd-nav-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar"><div class="tsd-toolbar-contents container"><div class="table-cell" id="tsd-search" data-base="."><div class="field"><label for="tsd-search-field" class="tsd-widget tsd-toolbar-icon search no-caption"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><use href="assets/icons.svg#icon-search"></use></svg></label><input type="text" id="tsd-search-field" aria-label="Search"/></div><div class="field"><div id="tsd-toolbar-links"></div></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="index.html" class="title">quantum-sensor-sim</a></div><div class="table-cell" id="tsd-widgets"><a href="#" class="tsd-widget tsd-toolbar-icon menu no-caption" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><use href="assets/icons.svg#icon-menu"></use></svg></a></div></div></header><div class="container container-main"><div class="col-content"><div class="tsd-page-title"><h2>quantum-sensor-sim</h2></div><div class="tsd-panel tsd-typography"><a id="md:quantum-sensor-sim" class="tsd-anchor"></a><h1><a href="#md:quantum-sensor-sim">Quantum Sensor Sim</a></h1><a id="md:overview" class="tsd-anchor"></a><h2><a href="#md:overview">Overview</a></h2><p>Quantum Sensor Sim is a comprehensive simulation platform for modeling various physical phenomena using sensors. It aims to simulate individual sensor dynamics, sensor spheres, sensor sphere networks, and sensor network lattices—providing a foundation for exploring emergent behaviors in a digital environment that blends physics, simulation, and advanced visualization.</p>
-<a id="md:features" class="tsd-anchor"></a><h2><a href="#md:features">Features</a></h2><ul>
-<li><p><strong>Modular Simulation Engine:</strong></p>
+<!DOCTYPE html><html class="default" lang="en"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>quantum-sensor-sim</title><meta name="description" content="Documentation for quantum-sensor-sim"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="assets/style.css"/><link rel="stylesheet" href="assets/highlight.css"/><script defer src="assets/main.js"></script><script async src="assets/icons.js" id="tsd-icons-script"></script><script async src="assets/search.js" id="tsd-search-script"></script><script async src="assets/navigation.js" id="tsd-nav-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os";document.body.style.display="none";setTimeout(() => app?app.showPage():document.body.style.removeProperty("display"),500)</script><header class="tsd-page-toolbar"><div class="tsd-toolbar-contents container"><div class="table-cell" id="tsd-search" data-base="."><div class="field"><label for="tsd-search-field" class="tsd-widget tsd-toolbar-icon search no-caption"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><use href="assets/icons.svg#icon-search"></use></svg></label><input type="text" id="tsd-search-field" aria-label="Search"/></div><div class="field"><div id="tsd-toolbar-links"></div></div><ul class="results"><li class="state loading">Preparing search index...</li><li class="state failure">The search index is not available</li></ul><a href="index.html" class="title">quantum-sensor-sim</a></div><div class="table-cell" id="tsd-widgets"><a href="#" class="tsd-widget tsd-toolbar-icon menu no-caption" data-toggle="menu" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><use href="assets/icons.svg#icon-menu"></use></svg></a></div></div></header><div class="container container-main"><div class="col-content"><div class="tsd-page-title"><h2>quantum-sensor-sim</h2></div><div class="tsd-panel tsd-typography"><a id="md:quantum-sensor-sim" class="tsd-anchor"></a><h1><a href="#md:quantum-sensor-sim">Quantum Sensor Sim</a></h1><p>Quantum Sensor Sim is a comprehensive simulation platform designed to model various physical phenomena using sensors. It simulates individual sensor dynamics, hierarchical sensor spheres and networks, and provides a foundation for exploring emergent behaviors through advanced physics and visualization techniques.</p>
+<a id="md:overview" class="tsd-anchor"></a><h2><a href="#md:overview">Overview</a></h2><p>Quantum Sensor Sim provides a cutting-edge framework for simulating:</p>
 <ul>
-<li>Models sensors with individual properties such as mass, charge, radius, spin, and color.</li>
-<li>Groups sensors into sensor spheres, simulating hierarchical physical systems.</li>
-<li>Supports dynamic behaviors including vibration, rotation, wobble, collisions, and impulse-based interactions.</li>
-<li>Includes advanced controls for resetting, randomizing, and even time reversal of the simulation.</li>
+<li><strong>Sensor Dynamics:</strong>
+Each sensor has physical properties (mass, charge, radius, spin, etc.) and computes its display color based on a deterministic, continuous HSL mapping.</li>
+<li><strong>Sensor Spheres:</strong>
+Sensors are grouped into sensor spheres that further compute an overall color based on the average sensor charge. Spheres support various dynamic behaviors including rotation, vibration, collisions, and impulse interactions.</li>
+<li><strong>Simulation Engine:</strong>
+A robust engine orchestrates sensor and sphere updates, handles collisions and container boundaries, and supports features such as reset (with an option to restart automatically), randomization, and time reversal.</li>
+<li><strong>Interactive Visual Demo:</strong>
+The demo is built with Three.js and includes live GUI controls (via lil‑gui) for adjusting simulation parameters in real time (e.g., time step, impulse strength, sensor charge offset, reset toggle). A debug overlay displays runtime information such as the average sensor charge and the computed sphere color.</li>
+</ul>
+<a id="md:key-features" class="tsd-anchor"></a><h2><a href="#md:key-features">Key Features</a></h2><ul>
+<li><strong>Modular Architecture:</strong><ul>
+<li><em>Sensors</em>: Individual sensor entities with continuous color mapping.</li>
+<li><em>Sensor Spheres</em>: Aggregated sensors that determine an overall visual state.</li>
+<li><em>Simulation Engine</em>: Central coordinator for updates, collisions, resets, and simulation behavior adjustments.</li>
 </ul>
 </li>
-<li><p><strong>Interactive Visual Demo:</strong></p>
-<ul>
-<li>Built with Three.js, displaying real-time sensor dynamics.</li>
-<li>Uses lil-gui for live parameter adjustments (time step, impulse strength, container settings, etc.).</li>
-<li>Incorporates raycasting for user input (e.g., “bumping” sensor spheres with mouse clicks).</li>
+<li><strong>Dynamic Visualizations:</strong><ul>
+<li>Real-time rendering using Three.js.</li>
+<li>GUI controls to adjust and observe dynamic simulation parameters.</li>
+<li>Debug overlay showing average sensor charge and computed colors.</li>
+</ul>
+</li>
+<li><strong>Robust Testing and Quality:</strong><ul>
+<li>Over 98% test coverage using Jest and Cypress.</li>
+<li>Comprehensive unit and integration tests.</li>
+<li>Continuous integration ensuring linting and type-quality.</li>
+</ul>
+</li>
+<li><strong>Reset &amp; Restart Toggle:</strong><ul>
+<li>The simulation reset now stops the simulation, resets all state, and then automatically restarts (or not, based on a GUI toggle).</li>
 </ul>
 </li>
 </ul>
-<a id="md:setup-instructions" class="tsd-anchor"></a><h2><a href="#md:setup-instructions">Setup Instructions</a></h2><a id="md:prerequisites" class="tsd-anchor"></a><h3><a href="#md:prerequisites">Prerequisites</a></h3><ol>
+<a id="md:architecture" class="tsd-anchor"></a><h2><a href="#md:architecture">Architecture</a></h2><a id="md:core-modules" class="tsd-anchor"></a><h3><a href="#md:core-modules">Core Modules</a></h3><ul>
+<li><strong>Constants.ts:</strong>
+Contains all physical constants, simulation default values, and color palette configurations.</li>
+<li><strong>Logger.ts:</strong>
+A configurable logging module with support for multiple log levels (DEBUG, INFO, etc.). It logs both to the console and (optionally) to files.</li>
+<li><strong>Vector3.ts:</strong>
+Implements 3D vector arithmetic and spatial operations which underpin the simulation.</li>
+</ul>
+<a id="md:simulation-modules" class="tsd-anchor"></a><h3><a href="#md:simulation-modules">Simulation Modules</a></h3><ul>
+<li><strong>Sensor.ts:</strong>
+Defines sensor entities with properties such as position, velocity, charge, and a computed display color using continuous HSL interpolation. Also includes placeholders for dynamic behaviors (vibration, rotation, wobble, radiation).</li>
+<li><strong>SensorSphere.ts:</strong>
+Groups sensors using a uniform spherical distribution. Sensors within the sphere are initialized with a random charge chosen from a set of three possibilities (neutral, positive, or negative) for roughly one-third chance each. The sphere computes its overall color from the average sensor charge.</li>
+<li><strong>SimulationEngine.ts:</strong>
+Orchestrates the simulation by updating sensors and sensor spheres, processing collisions, enforcing container boundaries, and supporting controls such as reset-and-restart, randomization, and time reversal.</li>
+</ul>
+<a id="md:domain-specific-modules" class="tsd-anchor"></a><h3><a href="#md:domain-specific-modules">Domain-Specific Modules</a></h3><ul>
+<li><strong>ElectricField.ts, GravitySimulator.ts, MagneticField.ts:</strong>
+Contain simulation logic for specific physical phenomena.</li>
+</ul>
+<a id="md:visual-demo" class="tsd-anchor"></a><h3><a href="#md:visual-demo">Visual Demo</a></h3><ul>
+<li><strong>app.ts:</strong>
+Sets up the Three.js scene, instantiates the simulation engine, renders sensor and sensor sphere meshes, and creates a live GUI dashboard (using lil‑gui) to control simulation parameters. New GUI controls include:<ul>
+<li><strong>Reset &amp; Restart Toggle:</strong> Choose whether a reset automatically resumes the simulation.</li>
+<li><strong>Charge Offset Slider:</strong> Adjusts sensor charges in real time, updating sensor and sphere colors.</li>
+<li><strong>Debug Overlay:</strong> Displays runtime information such as average sensor charge and computed sphere color.</li>
+</ul>
+</li>
+<li><strong>app.cy.ts:</strong>
+Contains end-to-end tests (using Cypress) verifying that the interactive visual demo works as expected.</li>
+</ul>
+<a id="md:setup-instructions" class="tsd-anchor"></a><h2><a href="#md:setup-instructions">Setup Instructions</a></h2><a id="md:prerequisites" class="tsd-anchor"></a><h3><a href="#md:prerequisites">Prerequisites</a></h3><ul>
 <li><strong>Node.js and npm:</strong>
-Ensure you have Node.js and npm installed on your machine. Download from <a href="https://nodejs.org/">Node.js</a>.</li>
-</ol>
-<a id="md:installing-nodejs-and-npm" class="tsd-anchor"></a><h3><a href="#md:installing-nodejs-and-npm">Installing Node.js and npm</a></h3><ol>
-<li><strong>Download Node.js and npm:</strong>
-Visit the <a href="https://nodejs.org/">Node.js download page</a> and download the installer for your operating system.</li>
-<li><strong>Run the Installer:</strong>
-Follow the installation instructions to install both Node.js and npm.</li>
-<li><strong>Verify Installation:</strong>
-Open your terminal or command prompt and run:<pre><code class="language-bash"><span class="hl-0">node</span><span class="hl-1"> </span><span class="hl-2">-v</span><br/><span class="hl-0">npm</span><span class="hl-1"> </span><span class="hl-2">-v</span>
+Ensure you have Node.js (v14+) and npm installed. Download from <a href="https://nodejs.org/">Node.js</a>.</li>
+</ul>
+<a id="md:installation" class="tsd-anchor"></a><h3><a href="#md:installation">Installation</a></h3><ol>
+<li><strong>Clone the Repository:</strong><pre><code class="language-bash"><span class="hl-0">git</span><span class="hl-1"> </span><span class="hl-2">clone</span><span class="hl-1"> </span><span class="hl-2">https://github.com/derrick-zero/quantum-sensor-sim.git</span><br/><span class="hl-0">cd</span><span class="hl-1"> </span><span class="hl-2">quantum-sensor-sim</span>
 </code><button>Copy</button></pre>
 </li>
-</ol>
-<a id="md:cloning-the-repository" class="tsd-anchor"></a><h3><a href="#md:cloning-the-repository">Cloning the Repository</a></h3><ol>
-<li><strong>Clone the Repository:</strong><pre><code class="language-bash"><span class="hl-0">git</span><span class="hl-1"> </span><span class="hl-3">clone</span><span class="hl-1"> </span><span class="hl-3">https://github.com/derrick-zero/quantum-sensor-sim</span><br/><span class="hl-0">cd</span><span class="hl-1"> </span><span class="hl-3">quantum-sensor-sim</span>
+<li><strong>Install Dependencies:</strong><pre><code class="language-bash"><span class="hl-0">npm</span><span class="hl-1"> </span><span class="hl-2">install</span>
 </code><button>Copy</button></pre>
 </li>
-</ol>
-<a id="md:installing-dependencies" class="tsd-anchor"></a><h3><a href="#md:installing-dependencies">Installing Dependencies</a></h3><ol>
-<li><strong>Install npm Packages:</strong><pre><code class="language-bash"><span class="hl-0">npm</span><span class="hl-1"> </span><span class="hl-3">install</span>
+<li><strong>Build the Project:</strong><pre><code class="language-bash"><span class="hl-0">npm</span><span class="hl-1"> </span><span class="hl-2">run</span><span class="hl-1"> </span><span class="hl-2">build</span>
 </code><button>Copy</button></pre>
 </li>
-</ol>
-<a id="md:building-the-project" class="tsd-anchor"></a><h3><a href="#md:building-the-project">Building the Project</a></h3><ol>
-<li><strong>Build the Project:</strong><pre><code class="language-bash"><span class="hl-0">npm</span><span class="hl-1"> </span><span class="hl-3">run</span><span class="hl-1"> </span><span class="hl-3">build</span>
+<li><strong>Run Tests:</strong><ul>
+<li>Unit Tests:<pre><code class="language-bash"><span class="hl-0">npm</span><span class="hl-1"> </span><span class="hl-2">run</span><span class="hl-1"> </span><span class="hl-2">test</span>
 </code><button>Copy</button></pre>
 </li>
-</ol>
-<a id="md:running-tests" class="tsd-anchor"></a><h3><a href="#md:running-tests">Running Tests</a></h3><ol>
-<li><strong>Run Unit Tests:</strong><pre><code class="language-bash"><span class="hl-0">npm</span><span class="hl-1"> </span><span class="hl-3">test</span>
+<li>End-to-End Tests (Cypress):<pre><code class="language-bash"><span class="hl-0">npm</span><span class="hl-1"> </span><span class="hl-2">run</span><span class="hl-1"> </span><span class="hl-2">test:e2e</span>
 </code><button>Copy</button></pre>
 </li>
-<li><strong>Run Integration/End-to-End Tests:</strong><pre><code class="language-bash"><span class="hl-0">npm</span><span class="hl-1"> </span><span class="hl-3">run</span><span class="hl-1"> </span><span class="hl-3">test:e2e</span>
+<li>Linting:<pre><code class="language-bash"><span class="hl-0">npm</span><span class="hl-1"> </span><span class="hl-2">run</span><span class="hl-1"> </span><span class="hl-2">lint</span>
 </code><button>Copy</button></pre>
+</li>
+</ul>
 </li>
 </ol>
 <a id="md:running-the-visual-demo" class="tsd-anchor"></a><h3><a href="#md:running-the-visual-demo">Running the Visual Demo</a></h3><ol>
-<li><strong>Start the Development Server:</strong><pre><code class="language-bash"><span class="hl-0">npm</span><span class="hl-1"> </span><span class="hl-3">start</span>
+<li><strong>Start the Development Server:</strong><pre><code class="language-bash"><span class="hl-0">npm</span><span class="hl-1"> </span><span class="hl-2">start</span>
 </code><button>Copy</button></pre>
 </li>
-<li><strong>Open the Demo:</strong>
-Navigate to <a href="http://localhost:1234">http://localhost:1234</a> in your browser.</li>
+<li><strong>Open the Demo in Your Browser:</strong>
+Navigate to <a href="http://localhost:1234">http://localhost:1234</a>.</li>
 </ol>
-<a id="md:recommended-vs-code-extensions" class="tsd-anchor"></a><h3><a href="#md:recommended-vs-code-extensions">Recommended VS Code Extensions</a></h3><p>To improve your development experience in VS Code, install the following extensions:</p>
+<a id="md:usage" class="tsd-anchor"></a><h2><a href="#md:usage">Usage</a></h2><p>When you open the demo, you will see:</p>
 <ul>
-<li><strong>ESLint</strong> (<code>dbaeumer.vscode-eslint</code>): Integrates ESLint to identify and fix linting issues.</li>
-<li><strong>Prettier - Code Formatter</strong> (<code>esbenp.prettier-vscode</code>): Ensures consistent code formatting.</li>
-<li><strong>Jest</strong> (<code>orta.vscode-jest</code>): Provides integration with Jest for running tests and showing results.</li>
-<li><strong>TypeScript and JavaScript Language Features</strong> (<code>ms-vscode.vscode-typescript-tslint-plugin</code>): Offers enhanced IntelliSense and syntax highlighting.</li>
-<li><strong>Edge DevTools for VS Code</strong> (<code>ms-edgedevtools.vscode-edge-devtools</code>): Helps debug JavaScript using the Edge developer tools.</li>
+<li><strong>Interactive GUI Controls:</strong><ul>
+<li><strong>Time Step:</strong> Change the simulation update rate.</li>
+<li><strong>Impulse Strength:</strong> Control the strength of impulses applied via mouse clicks.</li>
+<li><strong>Reset &amp; Restart Toggle:</strong> Choose whether resetting the simulation automatically restarts it.</li>
+<li><strong>Charge Offset Slider:</strong> Adjust the sensor charge offset in real time—this updates sensor colors and, consequently, the sensor sphere&#39;s color.</li>
 </ul>
-<a id="md:configuring-vs-code-extensions" class="tsd-anchor"></a><h3><a href="#md:configuring-vs-code-extensions">Configuring VS Code Extensions</a></h3><a id="md:eslint-configuration" class="tsd-anchor"></a><h4><a href="#md:eslint-configuration">ESLint Configuration</a></h4><ol>
-<li>Install the ESLint extension (<code>dbaeumer.vscode-eslint</code>).</li>
-<li>Ensure you have an ESLint configuration file (<code>.eslintrc.json</code>) in the project root.</li>
-<li>In your VS Code workspace settings, add:<pre><code class="language-json"><span class="hl-1">{</span><br/><span class="hl-1">  </span><span class="hl-4">&quot;eslint.enable&quot;</span><span class="hl-1">: </span><span class="hl-2">true</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">&quot;eslint.options&quot;</span><span class="hl-1">: {</span><br/><span class="hl-1">    </span><span class="hl-4">&quot;configFile&quot;</span><span class="hl-1">: </span><span class="hl-3">&quot;.eslintrc.json&quot;</span><br/><span class="hl-1">  },</span><br/><span class="hl-1">  </span><span class="hl-4">&quot;editor.codeActionsOnSave&quot;</span><span class="hl-1">: {</span><br/><span class="hl-1">    </span><span class="hl-4">&quot;source.fixAll.eslint&quot;</span><span class="hl-1">: </span><span class="hl-2">true</span><br/><span class="hl-1">  }</span><br/><span class="hl-1">}</span>
-</code><button>Copy</button></pre>
 </li>
-</ol>
-<a id="md:prettier-configuration" class="tsd-anchor"></a><h4><a href="#md:prettier-configuration">Prettier Configuration</a></h4><ol>
-<li>Install the Prettier extension (<code>esbenp.prettier-vscode</code>).</li>
-<li>Ensure you have a Prettier configuration file (<code>.prettierrc</code>) in the project root.</li>
-<li>In your VS Code workspace settings, add:<pre><code class="language-json"><span class="hl-1">{</span><br/><span class="hl-1">  </span><span class="hl-4">&quot;editor.formatOnSave&quot;</span><span class="hl-1">: </span><span class="hl-2">true</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">&quot;prettier.requireConfig&quot;</span><span class="hl-1">: </span><span class="hl-2">true</span><br/><span class="hl-1">}</span>
-</code><button>Copy</button></pre>
-</li>
-</ol>
-<a id="md:jest-configuration" class="tsd-anchor"></a><h4><a href="#md:jest-configuration">Jest Configuration</a></h4><ol>
-<li>Install the Jest extension (<code>orta.vscode-jest</code>).</li>
-<li>Ensure you have a Jest configuration file (<code>jest.config.js</code>) in the project root.</li>
-<li>In your VS Code workspace settings, add:<pre><code class="language-json"><span class="hl-1">{</span><br/><span class="hl-1">  </span><span class="hl-4">&quot;jest.enableCodeLens&quot;</span><span class="hl-1">: </span><span class="hl-2">true</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">&quot;jest.autoRun&quot;</span><span class="hl-1">: </span><span class="hl-3">&quot;off&quot;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">&quot;jest.runAllTestsFirst&quot;</span><span class="hl-1">: </span><span class="hl-2">true</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">&quot;jest.showCoverageOnLoad&quot;</span><span class="hl-1">: </span><span class="hl-2">true</span><br/><span class="hl-1">}</span>
-</code><button>Copy</button></pre>
-</li>
-</ol>
-<a id="md:cli-commands-for-setup" class="tsd-anchor"></a><h3><a href="#md:cli-commands-for-setup">CLI Commands for Setup</a></h3><a id="md:installing-npm-packages" class="tsd-anchor"></a><h4><a href="#md:installing-npm-packages">Installing npm Packages</a></h4><pre><code class="language-bash"><span class="hl-0">npm</span><span class="hl-1"> </span><span class="hl-3">install</span><span class="hl-1"> </span><span class="hl-3">typescript</span><span class="hl-1"> </span><span class="hl-3">jest</span><span class="hl-1"> </span><span class="hl-3">ts-jest</span><span class="hl-1"> </span><span class="hl-3">@types/jest</span><span class="hl-1"> </span><span class="hl-3">eslint</span><span class="hl-1"> </span><span class="hl-3">@typescript-eslint/parser</span><span class="hl-1"> </span><span class="hl-3">@typescript-eslint/eslint-plugin</span><span class="hl-1"> </span><span class="hl-3">prettier</span><span class="hl-1"> </span><span class="hl-3">eslint-config-prettier</span><span class="hl-1"> </span><span class="hl-3">eslint-plugin-prettier</span><span class="hl-1"> </span><span class="hl-3">ts-node</span><span class="hl-1"> </span><span class="hl-3">nodemon</span><span class="hl-1"> </span><span class="hl-3">husky</span><span class="hl-1"> </span><span class="hl-3">lint-staged</span><span class="hl-1"> </span><span class="hl-3">@commitlint/config-conventional</span><span class="hl-1"> </span><span class="hl-3">@commitlint/cli</span><span class="hl-1"> </span><span class="hl-2">--save-dev</span>
-</code><button>Copy</button></pre>
-<a id="md:configuring-husky-and-lint-staged" class="tsd-anchor"></a><h4><a href="#md:configuring-husky-and-lint-staged">Configuring Husky and lint-staged</a></h4><p>Add the following to your <strong>package.json</strong>:</p>
-<pre><code class="language-json"><span class="hl-1">{</span><br/><span class="hl-1">  </span><span class="hl-4">&quot;husky&quot;</span><span class="hl-1">: {</span><br/><span class="hl-1">    </span><span class="hl-4">&quot;hooks&quot;</span><span class="hl-1">: {</span><br/><span class="hl-1">      </span><span class="hl-4">&quot;pre-commit&quot;</span><span class="hl-1">: </span><span class="hl-3">&quot;npx lint-staged&quot;</span><br/><span class="hl-1">    }</span><br/><span class="hl-1">  },</span><br/><span class="hl-1">  </span><span class="hl-4">&quot;lint-staged&quot;</span><span class="hl-1">: {</span><br/><span class="hl-1">    </span><span class="hl-4">&quot;*.ts&quot;</span><span class="hl-1">: [</span><span class="hl-3">&quot;eslint --fix&quot;</span><span class="hl-1">, </span><span class="hl-3">&quot;prettier --write&quot;</span><span class="hl-1">, </span><span class="hl-3">&quot;git add&quot;</span><span class="hl-1">]</span><br/><span class="hl-1">  }</span><br/><span class="hl-1">}</span>
-</code><button>Copy</button></pre>
-<a id="md:installing-vs-code-extensions" class="tsd-anchor"></a><h4><a href="#md:installing-vs-code-extensions">Installing VS Code Extensions</a></h4><pre><code class="language-bash"><span class="hl-0">code</span><span class="hl-1"> </span><span class="hl-2">--install-extension</span><span class="hl-1"> </span><span class="hl-3">dbaeumer.vscode-eslint</span><br/><span class="hl-0">code</span><span class="hl-1"> </span><span class="hl-2">--install-extension</span><span class="hl-1"> </span><span class="hl-3">esbenp.prettier-vscode</span><br/><span class="hl-0">code</span><span class="hl-1"> </span><span class="hl-2">--install-extension</span><span class="hl-1"> </span><span class="hl-3">orta.vscode-jest</span><br/><span class="hl-0">code</span><span class="hl-1"> </span><span class="hl-2">--install-extension</span><span class="hl-1"> </span><span class="hl-3">ms-vscode.vscode-typescript-tslint-plugin</span><br/><span class="hl-0">code</span><span class="hl-1"> </span><span class="hl-2">--install-extension</span><span class="hl-1"> </span><span class="hl-3">ms-edgedevtools.vscode-edge-devtools</span>
-</code><button>Copy</button></pre>
-<a id="md:git-commands" class="tsd-anchor"></a><h3><a href="#md:git-commands">Git Commands</a></h3><ul>
-<li><p><strong>Clone the Repository:</strong></p>
-<pre><code class="language-bash"><span class="hl-0">git</span><span class="hl-1"> </span><span class="hl-3">clone</span><span class="hl-1"> </span><span class="hl-3">https://github.com/derrick-zero/quantum-sensor-sim</span><br/><span class="hl-0">cd</span><span class="hl-1"> </span><span class="hl-3">quantum-sensor-sim</span>
-</code><button>Copy</button></pre>
-</li>
-<li><p><strong>Create a New Branch:</strong></p>
-<pre><code class="language-bash"><span class="hl-0">git</span><span class="hl-1"> </span><span class="hl-3">checkout</span><span class="hl-1"> </span><span class="hl-2">-b</span><span class="hl-1"> &lt;</span><span class="hl-3">branch-nam</span><span class="hl-1">e&gt;</span>
-</code><button>Copy</button></pre>
-</li>
-<li><p><strong>Stage and Commit Changes:</strong></p>
-<pre><code class="language-bash"><span class="hl-0">git</span><span class="hl-1"> </span><span class="hl-3">add</span><span class="hl-1"> </span><span class="hl-3">.</span><br/><span class="hl-0">git</span><span class="hl-1"> </span><span class="hl-3">commit</span><span class="hl-1"> </span><span class="hl-2">-m</span><span class="hl-1"> </span><span class="hl-3">&quot;Commit message&quot;</span>
-</code><button>Copy</button></pre>
-</li>
-<li><p><strong>Push Changes:</strong></p>
-<pre><code class="language-bash"><span class="hl-0">git</span><span class="hl-1"> </span><span class="hl-3">push</span><span class="hl-1"> </span><span class="hl-3">origin</span><span class="hl-1"> &lt;</span><span class="hl-3">branch-nam</span><span class="hl-1">e&gt;</span>
-</code><button>Copy</button></pre>
-</li>
-<li><p><strong>Create a Pull Request:</strong>
-Navigate to the GitHub repository&#39;s &quot;Pull requests&quot; tab and create a new pull request with a clear description.</p>
-</li>
+<li><strong>Debug Overlay:</strong>
+Displays live information, such as the average sensor charge and the computed sensor sphere color.</li>
+<li><strong>User Interaction:</strong>
+Click on the canvas to apply impulses.</li>
 </ul>
-<a id="md:usage" class="tsd-anchor"></a><h3><a href="#md:usage">Usage</a></h3><ul>
-<li>Detailed API documentation is available in the <code>docs/API_REFERENCE.md</code> file.</li>
+<a id="md:contributing" class="tsd-anchor"></a><h2><a href="#md:contributing">Contributing</a></h2><p>Contributions are welcome! Please see our <a href="CONTRIBUTING.md">CONTRIBUTING.md</a> for guidelines on reporting issues, submitting pull requests, and our coding standards.</p>
+<a id="md:roadmap" class="tsd-anchor"></a><h2><a href="#md:roadmap">Roadmap</a></h2><ul>
+<li><strong>Multi-Sensor Sphere Dynamics:</strong>
+Enhance interactions among sensor spheres and refine collision handling.</li>
+<li><strong>Advanced Physics:</strong>
+Expand gravitational, electric, and magnetic simulations.</li>
+<li><strong>Performance Optimizations:</strong>
+Implement spatial partitioning and other optimizations.</li>
+<li><strong>VR / WebXR Integration:</strong>
+Develop an immersive simulation experience.</li>
+<li><strong>Extended Debug Tools:</strong>
+Add more runtime overlays and logging options.</li>
 </ul>
-<a id="md:contributing" class="tsd-anchor"></a><h3><a href="#md:contributing">Contributing</a></h3><ul>
-<li>See <code>docs/CONTRIBUTING.md</code> for contribution guidelines.</li>
+<a id="md:documentation" class="tsd-anchor"></a><h2><a href="#md:documentation">Documentation</a></h2><ul>
+<li>API documentation is generated via TypeDoc and is available in the <code>docs/</code> directory.</li>
+<li>Detailed guides and examples are provided in the project wiki (if applicable).</li>
 </ul>
-<a id="md:license" class="tsd-anchor"></a><h3><a href="#md:license">License</a></h3><p>This project is licensed under the MIT License – see the <a href="LICENSE">LICENSE</a> file for details.</p>
-</div></div><div class="col-sidebar"><div class="page-menu"><div class="tsd-navigation settings"><details class="tsd-index-accordion"><summary class="tsd-accordion-summary"><h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><use href="assets/icons.svg#icon-chevronDown"></use></svg>Settings</h3></summary><div class="tsd-accordion-details"><div class="tsd-filter-visibility"><h4 class="uppercase">Member Visibility</h4><form><ul id="tsd-filter-options"><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-private" name="private"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Private</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></form></div><div class="tsd-theme-toggle"><h4 class="uppercase">Theme</h4><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div><details open class="tsd-index-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><use href="assets/icons.svg#icon-chevronDown"></use></svg>On This Page</h3></summary><div class="tsd-accordion-details"><a href="#md:quantum-sensor-sim"><span>Quantum <wbr/>Sensor <wbr/>Sim</span></a><ul><li><a href="#md:overview"><span>Overview</span></a></li><li><a href="#md:features"><span>Features</span></a></li><li><a href="#md:setup-instructions"><span>Setup <wbr/>Instructions</span></a></li><li><ul><li><a href="#md:prerequisites"><span>Prerequisites</span></a></li><li><a href="#md:installing-nodejs-and-npm"><span>Installing <wbr/>Node.js and npm</span></a></li><li><a href="#md:cloning-the-repository"><span>Cloning the <wbr/>Repository</span></a></li><li><a href="#md:installing-dependencies"><span>Installing <wbr/>Dependencies</span></a></li><li><a href="#md:building-the-project"><span>Building the <wbr/>Project</span></a></li><li><a href="#md:running-tests"><span>Running <wbr/>Tests</span></a></li><li><a href="#md:running-the-visual-demo"><span>Running the <wbr/>Visual <wbr/>Demo</span></a></li><li><a href="#md:recommended-vs-code-extensions"><span>Recommended VS <wbr/>Code <wbr/>Extensions</span></a></li><li><a href="#md:configuring-vs-code-extensions"><span>Configuring VS <wbr/>Code <wbr/>Extensions</span></a></li><li><ul><li><a href="#md:eslint-configuration"><span>ESLint <wbr/>Configuration</span></a></li><li><a href="#md:prettier-configuration"><span>Prettier <wbr/>Configuration</span></a></li><li><a href="#md:jest-configuration"><span>Jest <wbr/>Configuration</span></a></li></ul></li><li><a href="#md:cli-commands-for-setup"><span>CLI <wbr/>Commands for <wbr/>Setup</span></a></li><li><ul><li><a href="#md:installing-npm-packages"><span>Installing npm <wbr/>Packages</span></a></li><li><a href="#md:configuring-husky-and-lint-staged"><span>Configuring <wbr/>Husky and lint-<wbr/>staged</span></a></li><li><a href="#md:installing-vs-code-extensions"><span>Installing VS <wbr/>Code <wbr/>Extensions</span></a></li></ul></li><li><a href="#md:git-commands"><span>Git <wbr/>Commands</span></a></li><li><a href="#md:usage"><span>Usage</span></a></li><li><a href="#md:contributing"><span>Contributing</span></a></li><li><a href="#md:license"><span>License</span></a></li></ul></li></ul></div></details></div><div class="site-menu"><nav class="tsd-navigation"><a href="index.html" class="current"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="assets/icons.svg#icon-1"></use></svg><span>quantum-sensor-sim</span></a><ul class="tsd-small-nested-navigation" id="tsd-nav-container" data-base="."><li>Loading...</li></ul></nav></div></div></div><footer><p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></footer><div class="overlay"></div></body></html>
+<a id="md:recommended-tools" class="tsd-anchor"></a><h2><a href="#md:recommended-tools">Recommended Tools</a></h2><p>For optimum development experience, install these VS Code extensions:</p>
+<ul>
+<li><strong>ESLint</strong> (<code>dbaeumer.vscode-eslint</code>)</li>
+<li><strong>Prettier - Code Formatter</strong> (<code>esbenp.prettier-vscode</code>)</li>
+<li><strong>Jest</strong> (<code>orta.vscode-jest</code>)</li>
+<li><strong>TypeScript and JavaScript Language Features</strong> (<code>ms-vscode.vscode-typescript-tslint-plugin</code>)</li>
+<li><strong>Edge DevTools for VS Code</strong> (<code>ms-edgedevtools.vscode-edge-devtools</code>)</li>
+</ul>
+<a id="md:license" class="tsd-anchor"></a><h2><a href="#md:license">License</a></h2><p>This project is licensed under the <a href="LICENSE">MIT License</a>.</p>
+<a id="md:contact" class="tsd-anchor"></a><h2><a href="#md:contact">Contact</a></h2><p>For questions or suggestions, please open a GitHub issue or contact <a href="mailto:derrick.geiszler@gmail.com">derrick.geiszler@gmail.com</a>.</p>
+</div></div><div class="col-sidebar"><div class="page-menu"><div class="tsd-navigation settings"><details class="tsd-index-accordion"><summary class="tsd-accordion-summary"><h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><use href="assets/icons.svg#icon-chevronDown"></use></svg>Settings</h3></summary><div class="tsd-accordion-details"><div class="tsd-filter-visibility"><h4 class="uppercase">Member Visibility</h4><form><ul id="tsd-filter-options"><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-protected" name="protected"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Protected</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-private" name="private"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Private</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-inherited" name="inherited" checked/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>Inherited</span></label></li><li class="tsd-filter-item"><label class="tsd-filter-input"><input type="checkbox" id="tsd-filter-external" name="external"/><svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect class="tsd-checkbox-background" width="30" height="30" x="1" y="1" rx="6" fill="none"></rect><path class="tsd-checkbox-checkmark" d="M8.35422 16.8214L13.2143 21.75L24.6458 10.25" stroke="none" stroke-width="3.5" stroke-linejoin="round" fill="none"></path></svg><span>External</span></label></li></ul></form></div><div class="tsd-theme-toggle"><h4 class="uppercase">Theme</h4><select id="tsd-theme"><option value="os">OS</option><option value="light">Light</option><option value="dark">Dark</option></select></div></div></details></div><details open class="tsd-index-accordion tsd-page-navigation"><summary class="tsd-accordion-summary"><h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><use href="assets/icons.svg#icon-chevronDown"></use></svg>On This Page</h3></summary><div class="tsd-accordion-details"><a href="#md:quantum-sensor-sim"><span>Quantum <wbr/>Sensor <wbr/>Sim</span></a><ul><li><a href="#md:overview"><span>Overview</span></a></li><li><a href="#md:key-features"><span>Key <wbr/>Features</span></a></li><li><a href="#md:architecture"><span>Architecture</span></a></li><li><ul><li><a href="#md:core-modules"><span>Core <wbr/>Modules</span></a></li><li><a href="#md:simulation-modules"><span>Simulation <wbr/>Modules</span></a></li><li><a href="#md:domain-specific-modules"><span>Domain-<wbr/>Specific <wbr/>Modules</span></a></li><li><a href="#md:visual-demo"><span>Visual <wbr/>Demo</span></a></li></ul></li><li><a href="#md:setup-instructions"><span>Setup <wbr/>Instructions</span></a></li><li><ul><li><a href="#md:prerequisites"><span>Prerequisites</span></a></li><li><a href="#md:installation"><span>Installation</span></a></li><li><a href="#md:running-the-visual-demo"><span>Running the <wbr/>Visual <wbr/>Demo</span></a></li></ul></li><li><a href="#md:usage"><span>Usage</span></a></li><li><a href="#md:contributing"><span>Contributing</span></a></li><li><a href="#md:roadmap"><span>Roadmap</span></a></li><li><a href="#md:documentation"><span>Documentation</span></a></li><li><a href="#md:recommended-tools"><span>Recommended <wbr/>Tools</span></a></li><li><a href="#md:license"><span>License</span></a></li><li><a href="#md:contact"><span>Contact</span></a></li></ul></div></details></div><div class="site-menu"><nav class="tsd-navigation"><a href="index.html" class="current"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="assets/icons.svg#icon-1"></use></svg><span>quantum-sensor-sim</span></a><ul class="tsd-small-nested-navigation" id="tsd-nav-container" data-base="."><li>Loading...</li></ul></nav></div></div></div><footer><p class="tsd-generator">Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p></footer><div class="overlay"></div></body></html>
