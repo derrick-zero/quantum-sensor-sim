@@ -138,32 +138,27 @@ const engineControls = {
   toggleTime: () => engine.toggleTimeReversal(),
   chargeOffset: 0, // New slider control for adjusting sensor charges.
 };
-const controlFolder = gui.addFolder('Engine Controls');
 
 // Add controls to the GUI folder:
+const controlFolder = gui.addFolder('Engine Controls');
 controlFolder.add(engineControls, 'reset').name('Reset Simulation');
 controlFolder.add(engineControls, 'randomize').name('Randomize Sensors');
 controlFolder.add(engineControls, 'toggleTime').name('Toggle Time Reversal');
 controlFolder
   .add(engineControls, 'impulseStrength', 0, 10)
   .name('Impulse Strength');
-
-// New GUI control: a toggle for reset behavior.
-controlFolder.add(engine, 'resetAndRestart').name('Reset & Restart');
-
-// New GUI control: slider for sensor charge offset.
+// New control: Adjust sensor charge offset for the container sphere.
 controlFolder
   .add(engineControls, 'chargeOffset', -10, 10)
   .name('Charge Offset')
   .onChange((offset: number) => {
-    // Update every sensor in the container sphere with the new offset.
     containerSphere.sensors.forEach(sensor => {
       sensor.charge = offset;
       sensor.updateColor();
     });
-    // Force the sphere to update its overall color based on the new sensor charges.
     containerSphere.update(0.1);
   });
+controlFolder.add(engine, 'resetAndRestart').name('Reset & Restart'); // Toggle for reset behavior.
 controlFolder.open();
 
 // =====================
@@ -178,13 +173,14 @@ const sensorMeshes = allSensors.map(sensor => {
   return { id: sensor.id, mesh };
 });
 
-// Create meshes for sensor spheres using sphere.color.
+// Create sensor sphere meshes using the sphere's computed color, rendered as a wireframe.
 const sensorSphereMeshes = sensorSpheres.map(sphere => {
   const geometry = new THREE.SphereGeometry(sphere.radius, 16, 16);
   const material = new THREE.MeshBasicMaterial({
-    color: sphere.color, // Use the computed sphere color.
+    color: sphere.color, // Use the computed color from the sensor sphere.
+    wireframe: true, // Render as a wireframe.
     transparent: true,
-    opacity: 0.5,
+    opacity: 0.3, // Optional: adjust the opacity if desired.
   });
   const mesh = new THREE.Mesh(geometry, material);
   mesh.position.set(sphere.center.x, sphere.center.y, sphere.center.z);

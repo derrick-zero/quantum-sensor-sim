@@ -138,18 +138,18 @@ describe('Quantum Sensor Sim Visual Demo', () => {
       // Force an update to recalc sphere color.
       win.engine.sensorSpheres[0].update(0.1);
       const expectedColor = 'hsl(15, 100%, 50%)'; // for average = 5.
-      expect(win.engine.sensorSpheres[0].color).toEqual(expectedColor);
+      expect(win.engine.sensorSpheres[0].color).to.equal(expectedColor);
 
       // Now, simulate a reset. Assume the toggle is set to resetAndRestart true.
       win.engine.resetAndRestart = true;
       win.engine.reset();
 
       // Immediately after reset, globalTime should be 0.
-      expect(win.engine.globalTime).toEqual(0);
+      expect(win.engine.globalTime).to.equal(0);
 
       // Wait a moment (simulate tick) and then ensure simulation resumed.
       setTimeout(() => {
-        expect(win.engine.globalTime).toBeGreaterThan(0);
+        expect(win.engine.globalTime).to.be.greaterThan(0);
       }, 50);
     });
   });
