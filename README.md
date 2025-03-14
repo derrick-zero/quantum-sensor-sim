@@ -1,75 +1,107 @@
 # Quantum Sensor Sim
 
+Quantum Sensor Sim is a comprehensive simulation platform designed to model various physical phenomena using sensors. It simulates individual sensor dynamics, hierarchical sensor spheres and networks, and provides a foundation for exploring emergent behaviors through advanced physics and visualization techniques.
+
 ## Overview
 
-Quantum Sensor Sim is a comprehensive simulation platform for modeling various physical phenomena using sensors. It aims to simulate individual sensor dynamics, sensor spheres, sensor sphere networks, and sensor network lattices—providing a foundation for exploring emergent behaviors in a digital environment that blends physics, simulation, and advanced visualization.
+Quantum Sensor Sim provides a cutting-edge framework for simulating:
 
-## Features
-
-- **Modular Simulation Engine:**
-
-  - Models sensors with individual properties such as mass, charge, radius, spin, and color.
-  - Groups sensors into sensor spheres, simulating hierarchical physical systems.
-  - Supports dynamic behaviors including vibration, rotation, wobble, collisions, and impulse-based interactions.
-  - Includes advanced controls for resetting, randomizing, and even time reversal of the simulation.
-
+- **Sensor Dynamics:**
+  Each sensor has physical properties (mass, charge, radius, spin, etc.) and computes its display color based on a deterministic, continuous HSL mapping.
+- **Sensor Spheres:**
+  Sensors are grouped into sensor spheres that further compute an overall color based on the average sensor charge. Spheres support various dynamic behaviors including rotation, vibration, collisions, and impulse interactions.
+- **Simulation Engine:**
+  A robust engine orchestrates sensor and sphere updates, handles collisions and container boundaries, and supports features such as reset (with an option to restart automatically), randomization, and time reversal.
 - **Interactive Visual Demo:**
-  - Built with Three.js, displaying real-time sensor dynamics.
-  - Uses lil-gui for live parameter adjustments (time step, impulse strength, container settings, etc.).
-  - Incorporates raycasting for user input (e.g., “bumping” sensor spheres with mouse clicks).
+  The demo is built with Three.js and includes live GUI controls (via lil‑gui) for adjusting simulation parameters in real time (e.g., time step, impulse strength, sensor charge offset, reset toggle). A debug overlay displays runtime information such as the average sensor charge and the computed sphere color.
+
+## Key Features
+
+- **Modular Architecture:**
+  - _Sensors_: Individual sensor entities with continuous color mapping.
+  - _Sensor Spheres_: Aggregated sensors that determine an overall visual state.
+  - _Simulation Engine_: Central coordinator for updates, collisions, resets, and simulation behavior adjustments.
+- **Dynamic Visualizations:**
+  - Real-time rendering using Three.js.
+  - GUI controls to adjust and observe dynamic simulation parameters.
+  - Debug overlay showing average sensor charge and computed colors.
+- **Robust Testing and Quality:**
+  - Over 98% test coverage using Jest and Cypress.
+  - Comprehensive unit and integration tests.
+  - Continuous integration ensuring linting and type-quality.
+- **Reset & Restart Toggle:**
+  - The simulation reset now stops the simulation, resets all state, and then automatically restarts (or not, based on a GUI toggle).
+
+## Architecture
+
+### Core Modules
+
+- **Constants.ts:**
+  Contains all physical constants, simulation default values, and color palette configurations.
+- **Logger.ts:**
+  A configurable logging module with support for multiple log levels (DEBUG, INFO, etc.). It logs both to the console and (optionally) to files.
+- **Vector3.ts:**
+  Implements 3D vector arithmetic and spatial operations which underpin the simulation.
+
+### Simulation Modules
+
+- **Sensor.ts:**
+  Defines sensor entities with properties such as position, velocity, charge, and a computed display color using continuous HSL interpolation. Also includes placeholders for dynamic behaviors (vibration, rotation, wobble, radiation).
+- **SensorSphere.ts:**
+  Groups sensors using a uniform spherical distribution. Sensors within the sphere are initialized with a random charge chosen from a set of three possibilities (neutral, positive, or negative) for roughly one-third chance each. The sphere computes its overall color from the average sensor charge.
+- **SimulationEngine.ts:**
+  Orchestrates the simulation by updating sensors and sensor spheres, processing collisions, enforcing container boundaries, and supporting controls such as reset-and-restart, randomization, and time reversal.
+
+### Domain-Specific Modules
+
+- **ElectricField.ts, GravitySimulator.ts, MagneticField.ts:**
+  Contain simulation logic for specific physical phenomena.
+
+### Visual Demo
+
+- **app.ts:**
+  Sets up the Three.js scene, instantiates the simulation engine, renders sensor and sensor sphere meshes, and creates a live GUI dashboard (using lil‑gui) to control simulation parameters. New GUI controls include:
+  - **Reset & Restart Toggle:** Choose whether a reset automatically resumes the simulation.
+  - **Charge Offset Slider:** Adjusts sensor charges in real time, updating sensor and sphere colors.
+  - **Debug Overlay:** Displays runtime information such as average sensor charge and computed sphere color.
+- **app.cy.ts:**
+  Contains end-to-end tests (using Cypress) verifying that the interactive visual demo works as expected.
 
 ## Setup Instructions
 
 ### Prerequisites
 
-1. **Node.js and npm:**
-   Ensure you have Node.js and npm installed on your machine. Download from [Node.js](https://nodejs.org/).
+- **Node.js and npm:**
+  Ensure you have Node.js (v14+) and npm installed. Download from [Node.js](https://nodejs.org/).
 
-### Installing Node.js and npm
-
-1. **Download Node.js and npm:**
-   Visit the [Node.js download page](https://nodejs.org/) and download the installer for your operating system.
-2. **Run the Installer:**
-   Follow the installation instructions to install both Node.js and npm.
-3. **Verify Installation:**
-   Open your terminal or command prompt and run:
-   ```bash
-   node -v
-   npm -v
-   ```
-
-### Cloning the Repository
+### Installation
 
 1. **Clone the Repository:**
    ```bash
-   git clone https://github.com/derrick-zero/quantum-sensor-sim
+   git clone https://github.com/derrick-zero/quantum-sensor-sim.git
    cd quantum-sensor-sim
    ```
-
-### Installing Dependencies
-
-1. **Install npm Packages:**
+2. **Install Dependencies:**
    ```bash
    npm install
    ```
-
-### Building the Project
-
-1. **Build the Project:**
+3. **Build the Project:**
    ```bash
    npm run build
    ```
-
-### Running Tests
-
-1. **Run Unit Tests:**
-   ```bash
-   npm test
-   ```
-2. **Run Integration/End-to-End Tests:**
-   ```bash
-   npm run test:e2e
-   ```
+4. **Run Tests:**
+   - Unit Tests:
+     ```bash
+     npm run test
+     ```
+   - End-to-End Tests (Cypress):
+     ```bash
+     npm run test:e2e
+     ```
+   - Linting:
+     ```bash
+     npm run lint
+     ```
 
 ### Running the Visual Demo
 
@@ -77,138 +109,59 @@ Quantum Sensor Sim is a comprehensive simulation platform for modeling various p
    ```bash
    npm start
    ```
-2. **Open the Demo:**
-   Navigate to [http://localhost:1234](http://localhost:1234) in your browser.
+2. **Open the Demo in Your Browser:**
+   Navigate to [http://localhost:1234](http://localhost:1234).
 
-### Recommended VS Code Extensions
+## Usage
 
-To improve your development experience in VS Code, install the following extensions:
+When you open the demo, you will see:
 
-- **ESLint** (`dbaeumer.vscode-eslint`): Integrates ESLint to identify and fix linting issues.
-- **Prettier - Code Formatter** (`esbenp.prettier-vscode`): Ensures consistent code formatting.
-- **Jest** (`orta.vscode-jest`): Provides integration with Jest for running tests and showing results.
-- **TypeScript and JavaScript Language Features** (`ms-vscode.vscode-typescript-tslint-plugin`): Offers enhanced IntelliSense and syntax highlighting.
-- **Edge DevTools for VS Code** (`ms-edgedevtools.vscode-edge-devtools`): Helps debug JavaScript using the Edge developer tools.
+- **Interactive GUI Controls:**
+  - **Time Step:** Change the simulation update rate.
+  - **Impulse Strength:** Control the strength of impulses applied via mouse clicks.
+  - **Reset & Restart Toggle:** Choose whether resetting the simulation automatically restarts it.
+  - **Charge Offset Slider:** Adjust the sensor charge offset in real time—this updates sensor colors and, consequently, the sensor sphere's color.
+- **Debug Overlay:**
+  Displays live information, such as the average sensor charge and the computed sensor sphere color.
+- **User Interaction:**
+  Click on the canvas to apply impulses.
 
-### Configuring VS Code Extensions
+## Contributing
 
-#### ESLint Configuration
+Contributions are welcome! Please see our [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on reporting issues, submitting pull requests, and our coding standards.
 
-1. Install the ESLint extension (`dbaeumer.vscode-eslint`).
-2. Ensure you have an ESLint configuration file (`.eslintrc.json`) in the project root.
-3. In your VS Code workspace settings, add:
-   ```json
-   {
-     "eslint.enable": true,
-     "eslint.options": {
-       "configFile": ".eslintrc.json"
-     },
-     "editor.codeActionsOnSave": {
-       "source.fixAll.eslint": true
-     }
-   }
-   ```
+## Roadmap
 
-#### Prettier Configuration
+- **Multi-Sensor Sphere Dynamics:**
+  Enhance interactions among sensor spheres and refine collision handling.
+- **Advanced Physics:**
+  Expand gravitational, electric, and magnetic simulations.
+- **Performance Optimizations:**
+  Implement spatial partitioning and other optimizations.
+- **VR / WebXR Integration:**
+  Develop an immersive simulation experience.
+- **Extended Debug Tools:**
+  Add more runtime overlays and logging options.
 
-1. Install the Prettier extension (`esbenp.prettier-vscode`).
-2. Ensure you have a Prettier configuration file (`.prettierrc`) in the project root.
-3. In your VS Code workspace settings, add:
-   ```json
-   {
-     "editor.formatOnSave": true,
-     "prettier.requireConfig": true
-   }
-   ```
+## Documentation
 
-#### Jest Configuration
+- API documentation is generated via TypeDoc and is available in the `docs/` directory.
+- Detailed guides and examples are provided in the project wiki (if applicable).
 
-1. Install the Jest extension (`orta.vscode-jest`).
-2. Ensure you have a Jest configuration file (`jest.config.js`) in the project root.
-3. In your VS Code workspace settings, add:
-   ```json
-   {
-     "jest.enableCodeLens": true,
-     "jest.autoRun": "off",
-     "jest.runAllTestsFirst": true,
-     "jest.showCoverageOnLoad": true
-   }
-   ```
+## Recommended Tools
 
-### CLI Commands for Setup
+For optimum development experience, install these VS Code extensions:
 
-#### Installing npm Packages
+- **ESLint** (`dbaeumer.vscode-eslint`)
+- **Prettier - Code Formatter** (`esbenp.prettier-vscode`)
+- **Jest** (`orta.vscode-jest`)
+- **TypeScript and JavaScript Language Features** (`ms-vscode.vscode-typescript-tslint-plugin`)
+- **Edge DevTools for VS Code** (`ms-edgedevtools.vscode-edge-devtools`)
 
-```bash
-npm install typescript jest ts-jest @types/jest eslint @typescript-eslint/parser @typescript-eslint/eslint-plugin prettier eslint-config-prettier eslint-plugin-prettier ts-node nodemon husky lint-staged @commitlint/config-conventional @commitlint/cli --save-dev
-```
+## License
 
-#### Configuring Husky and lint-staged
+This project is licensed under the [MIT License](LICENSE).
 
-Add the following to your **package.json**:
+## Contact
 
-```json
-{
-  "husky": {
-    "hooks": {
-      "pre-commit": "npx lint-staged"
-    }
-  },
-  "lint-staged": {
-    "*.ts": ["eslint --fix", "prettier --write", "git add"]
-  }
-}
-```
-
-#### Installing VS Code Extensions
-
-```bash
-code --install-extension dbaeumer.vscode-eslint
-code --install-extension esbenp.prettier-vscode
-code --install-extension orta.vscode-jest
-code --install-extension ms-vscode.vscode-typescript-tslint-plugin
-code --install-extension ms-edgedevtools.vscode-edge-devtools
-```
-
-### Git Commands
-
-- **Clone the Repository:**
-
-  ```bash
-  git clone https://github.com/derrick-zero/quantum-sensor-sim
-  cd quantum-sensor-sim
-  ```
-
-- **Create a New Branch:**
-
-  ```bash
-  git checkout -b <branch-name>
-  ```
-
-- **Stage and Commit Changes:**
-
-  ```bash
-  git add .
-  git commit -m "Commit message"
-  ```
-
-- **Push Changes:**
-
-  ```bash
-  git push origin <branch-name>
-  ```
-
-- **Create a Pull Request:**
-  Navigate to the GitHub repository's "Pull requests" tab and create a new pull request with a clear description.
-
-### Usage
-
-- Detailed API documentation is available in the `docs/API_REFERENCE.md` file.
-
-### Contributing
-
-- See `docs/CONTRIBUTING.md` for contribution guidelines.
-
-### License
-
-This project is licensed under the MIT License – see the [LICENSE](LICENSE) file for details.
+For questions or suggestions, please open a GitHub issue or contact [derrick.geiszler@gmail.com](mailto:derrick.geiszler@gmail.com).

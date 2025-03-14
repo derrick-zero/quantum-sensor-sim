@@ -1,74 +1,140 @@
 # Contributing to Quantum Sensor Sim
 
-## How to Contribute
+Thank you for taking the time to contribute to Quantum Sensor Sim! We welcome contributions of all kinds—be it bug fixes, new features, documentation improvements, or testing enhancements. To make the contribution process as smooth as possible for everyone, please follow these guidelines.
 
-We welcome contributions! Follow these steps to contribute:
+## Table of Contents
 
-1. **Fork the Repository**: Click on the "Fork" button at the top right corner of the repository page to create a copy of the repository under your GitHub account.
-
-2. **Clone the Repository**: Clone the forked repository to your local machine.
-
-   ```bash
-   git clone https://github.com/derrick-zero/quantum-sensor-sim
-   cd quantum-sensor-sim
-   ```
-
-3. **Create a New Branch**: Create a new branch for your feature or bug fix.
-
-   ```bash
-   git checkout -b <branch-name>
-   ```
-
-4. **Write Tests**: Write tests for your changes to ensure functionality and prevent regressions.
-
-5. **Stage Your Changes**: Stage the changes you have made.
-
-   ```bash
-   git add .
-   ```
-
-6. **Commit Your Changes**: Commit your changes with a meaningful commit message.
-
-   ```bash
-   git commit -m "Commit message"
-   ```
-
-7. **Push Your Changes**: Push your changes to the remote repository.
-
-   ```bash
-   git push origin <branch-name>
-   ```
-
-8. **Submit a Pull Request**: Go to the repository on GitHub, navigate to the "Pull requests" tab, and click "New pull request". Provide a clear description of your changes and any relevant information.
+- [Code of Conduct](#code-of-conduct)
+- [How to Contribute](#how-to-contribute)
+  - [Reporting Bugs](#reporting-bugs)
+  - [Feature Requests](#feature-requests)
+  - [Pull Requests](#pull-requests)
+- [Coding Standards and Workflow](#coding-standards-and-workflow)
+  - [Branching and Workflow](#branching-and-workflow)
+  - [Code Style and Linting](#code-style-and-linting)
+  - [Testing](#testing)
+- [Setting Up Your Development Environment](#setting-up-your-development-environment)
+- [Documentation](#documentation)
+- [Communication](#communication)
+- [License](#license)
 
 ## Code of Conduct
 
-We are committed to fostering a welcoming and inclusive community. Please review and follow our [Code of Conduct](https://www.contributor-covenant.org/version/2/0/code_of_conduct/).
+This project adheres to the [Contributor Covenant Code of Conduct](./CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report any unacceptable behavior to [derrick.geiszler@gmail.com](mailto:derrick.geiszler@gmail.com).
 
-## Coding Standards
+## How to Contribute
 
-- Adhere to the project's coding standards and best practices.
-- Use meaningful variable and function names.
-- Comment your code where necessary for clarity.
-- Follow consistent naming conventions:
-  - **Files and Directories**: Use kebab-case (e.g., `sensor-simulator.ts`).
-  - **Classes and Interfaces**: Use PascalCase (e.g., `SensorSimulator`, `ISensor`).
-  - **Variables and Functions**: Use camelCase (e.g., `calculateForce`, `sensorState`).
-  - **Constants**: Use UPPER_CASE with underscores (e.g., `GRAVITATIONAL_CONSTANT`).
+### Reporting Bugs
 
-## Testing
+- **Search Before Reporting:**
+  Please check the [issue tracker](https://github.com/derrick-zero/quantum-sensor-sim/issues) for similar issues before creating a new bug report.
+- **Provide Details:**
+  When reporting a bug, include:
+  - A clear and descriptive title.
+  - The steps to reproduce the issue.
+  - The expected and actual behavior.
+  - Any relevant logs, screenshots, or code snippets.
 
-- Write tests for new features and bug fixes.
-- Run tests using `npm test` to ensure all tests pass.
-- Ensure test coverage for critical paths and edge cases.
+### Feature Requests
+
+- **Discuss First:**
+  Open an issue to discuss your feature idea before submitting a pull request. This helps avoid duplication and aligns the request with our project roadmap.
+- **Detail Your Idea:**
+  Describe your proposed feature, its benefits to the project, and any design ideas or examples that illustrate its usage.
+
+### Pull Requests
+
+- **Fork and Clone:**
+  Fork the repository, clone your fork locally, and create a new branch for your feature or bugfix.
+- **Follow Coding Standards:**
+  Adhere to our coding style and document your code where necessary (see Code Style below).
+- **Write Tests:**
+  Ensure that your changes are covered by unit tests and, if applicable, end-to-end tests.
+- **Documentation:**
+  Update or add documentation (README, API docs, ROADMAP, etc.) to reflect your changes.
+- **Submit a Pull Request:**
+  Create a pull request with a clear title and description. Reference the relevant issue(s) in your PR description.
+
+## Coding Standards and Workflow
+
+### Branching and Workflow
+
+- We follow a GitFlow-inspired development process:
+  - **Feature Branches:** For new features or bug fixes, create a branch from the main branch (e.g., `feature/your-feature`).
+  - **Pull Requests:** Submit your branch as a pull request against the main branch.
+  - Ensure your pull request has a clear description of the changes and references any related issues.
+
+### Code Style and Linting
+
+- **ESLint:**
+  We use ESLint with strict rules to maintain code quality. Run:
+  ```bash
+  npm run lint
+  ```
+
+Fix any lint errors before submitting your code.
+
+- **Prettier:**
+  Maintain consistent code formatting. Our Prettier configuration is defined in `.prettierrc`. Run:
+  ```bash
+  npm run format
+  ```
+- **Comments and Documentation:**
+  Use JSDoc comments to document public methods and important classes. This helps maintain clarity and generate API documentation.
+
+### Testing
+
+- **Unit Tests:**
+  We use Jest for our unit tests. Ensure that any new features are covered by appropriate tests:
+  ```bash
+  npm run test
+  ```
+- **End-to-End Tests:**
+  We use Cypress for integration and end-to-end tests. Verify that your changes do not break the demo:
+  ```bash
+  npm run test:e2e
+  ```
+- **Coverage:**
+  We aim for 100% coverage on core modules. Please add tests if your contribution introduces new branches or functionality.
+
+## Setting Up Your Development Environment
+
+1. **Clone the Repository:**
+
+   ```bash
+   git clone https://github.com/derrick-zero/quantum-sensor-sim.git
+   cd quantum-sensor-sim
+   ```
+
+2. **Install Dependencies:**
+
+   ```bash
+   npm install
+   ```
+
+3. **Build the Project:**
+
+   ```bash
+   npm run build
+   ```
+
+4. **Run Tests:**
+   ```bash
+   npm run test
+   npm run lint
+   ```
 
 ## Documentation
 
-- Update the documentation as needed to reflect your changes.
-- Add meaningful comments to your code to enhance readability and maintainability.
+- The project documentation is maintained in Markdown files within the `docs/` directory.
+- API documentation is generated using TypeDoc.
+- Please update the README, ROADMAP.mmd, and API docs in `docs/` with any new changes or features.
 
-## Code Reviews
+## Communication
 
-- Submit your pull request for review.
-- Provide constructive feedback on others' pull requests.
-- Review criteria include adherence to coding standards, test coverage, and performance considerations.
+- Join our [Slack/Discord channel](#) for real-time questions and collaboration.
+- For direct inquiries or suggestions, please open an issue or contact [derrick.geiszler@gmail.com](mailto:derrick.geiszler@gmail.com).
+
+## License
+
+This project is licensed under the [MIT License](../LICENSE).
