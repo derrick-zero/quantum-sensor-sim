@@ -7,7 +7,7 @@ import { Constants } from '../core/Constants';
 /**
  * Represents a sphere composed of sensors, which can act as a single entity or a container.
  * Manages sensor initialization, kinematics, mass computation, collision force calculations,
- * rotation, vibration effects, state propagation, and impulse application.
+ * rotation, vibration effects, state propagation, impulse application, and visual representation.
  */
 export class SensorSphere {
   public id: string;
@@ -18,7 +18,7 @@ export class SensorSphere {
   public velocity: Vector3;
   public acceleration: Vector3;
   public state: SensorState;
-  public color: string;
+  public color: string; // New: overall sphere color based on average sensor charge.
 
   /**
    * Creates a new SensorSphere instance.
@@ -46,13 +46,15 @@ export class SensorSphere {
 
     this.initializeSensors(sensorCount);
     this.computeMass();
-    // Compute and assign the sensor sphere's color from the average sensor charge.
+    // Compute and assign the sphere's color based on the average sensor charge.
     const avgCharge = this.computeAverageCharge();
     this.color = this.computeColor(avgCharge);
   }
 
   /**
    * Initializes sensors within the sphere using a uniform spherical distribution.
+   * Each sensor is given a charge with roughly a 1/3 chance of being neutral (0),
+   * positive (5), or negative (-5).
    * @param sensorCount - The number of sensors to create.
    */
   private initializeSensors(sensorCount: number): void {
@@ -62,14 +64,34 @@ export class SensorSphere {
       const phi = Constants.TWO_PI * Math.random(); // angle in x-y plane [0, 2π]
       const r = this.radius * Math.cbrt(Math.random()); // uniform distribution in volume
 
-      // Convert spherical to Cartesian coordinates.
+      // Convert spherical coordinates to Cartesian.
       const x = r * Math.sin(theta) * Math.cos(phi);
       const y = r * Math.sin(theta) * Math.sin(phi);
       const z = r * Math.cos(theta);
 
       const position = this.center.add(new Vector3(x, y, z));
       const sensorId = `${this.id}_sensor_${i + 1}`;
-      const sensor = new Sensor(sensorId, position);
+
+      // Randomly pick a charge: ~1/3 chance for 0, +5, and -5.
+      let charge: number;
+      const rnd = Math.random();
+      if (rnd < 1 / 3) {
+        charge = 0; // neutral
+      } else if (rnd < 2 / 3) {
+        charge = 5; // positive charge
+      } else {
+        charge = -5; // negative charge
+      }
+
+      // Create the sensor with our chosen charge.
+      const sensor = new Sensor(
+        sensorId,
+        position,
+        Vector3.zero(),
+        Constants.DEFAULT_SENSOR_MASS,
+        charge,
+        SensorState.ACTIVE
+      );
       this.sensors.push(sensor);
     }
   }
@@ -85,8 +107,8 @@ export class SensorSphere {
   }
 
   /**
-   * Computes the average sensor charge within the sphere.
-   * @returns The average charge (or 0 if no sensors).
+   * Computes the average sensor charge for the sensors contained within the sphere.
+   * @returns The average charge (0 if there are no sensors).
    */
   private computeAverageCharge(): number {
     if (this.sensors.length === 0) return 0;
@@ -98,26 +120,22 @@ export class SensorSphere {
   }
 
   /**
-   * Computes the color of the sensor sphere based on the provided charge value.
-   * Uses continuous HSL interpolation:
-   * - For charge === 0, returns "#FFFFFF" (neutral).
-   * - For positive charge, normalized charge maps linearly from hue 30° (low) to 0° (high).
-   * - For negative charge, normalized charge maps linearly from hue 180° (low) to 240° (high).
-   * @param charge - The average charge value used to compute color.
+   * Computes the sphere's color based on the average sensor charge.
+   * Uses the same continuous HSL interpolation logic as Sensor.computeColor():
+   * - For an average charge of 0, returns "#FFFFFF".
+   * - For positive average charge, maps normalized charge from 30° to 0°.
+   * - For negative average charge, maps normalized charge from 180° to 240°.
+   * @param charge - The average charge.
    * @returns A CSS HSL color string.
    */
   private computeColor(charge: number): string {
     if (charge === 0) return '#FFFFFF';
-
     const maxCharge = Constants.MAX_SENSOR_CHARGE;
     const normalizedCharge = Math.min(Math.abs(charge) / maxCharge, 1);
-
     let hue: number;
     if (charge > 0) {
-      // Map from 30° to 0°.
       hue = 30 - 30 * normalizedCharge;
     } else {
-      // Map from 180° to 240°.
       hue = 180 + 60 * normalizedCharge;
     }
     return `hsl(${Math.round(hue)}, 100%, 50%)`;
@@ -125,7 +143,7 @@ export class SensorSphere {
 
   /**
    * Updates the sphere's kinematics (velocity, center) and each sensor's state.
-   * Also recomputes the sphere's mass and color based on the average sensor charge.
+   * Then, recomputes the sphere's color based on the updated average sensor charge.
    * @param deltaTime - Time step in seconds; must be > 0.
    * @throws Error if deltaTime <= 0.
    */
@@ -134,14 +152,14 @@ export class SensorSphere {
       throw new Error('Delta time must be greater than zero.');
     }
 
-    // Update the sphere's kinematics.
+    // Update sphere's velocity and center.
     this.velocity = this.velocity.add(
       this.acceleration.multiplyScalar(deltaTime)
     );
     this.center = this.center.add(this.velocity.multiplyScalar(deltaTime));
     this.acceleration = Vector3.zero();
 
-    // Update each sensor's position relative to the sphere's movement and update its state.
+    // Update each sensor.
     for (const sensor of this.sensors) {
       sensor.position = sensor.position.add(
         this.velocity.multiplyScalar(deltaTime)
@@ -149,10 +167,10 @@ export class SensorSphere {
       sensor.update(deltaTime);
     }
 
-    // (Optional) Recompute sphere mass in case sensor states have changed.
+    // Recompute mass in case sensors changed.
     this.computeMass();
 
-    // Update the sphere's visual color based on the average sensor charge.
+    // Recalculate and update sphere's color based on average sensor charge.
     const avgCharge = this.computeAverageCharge();
     this.color = this.computeColor(avgCharge);
   }
@@ -186,6 +204,7 @@ export class SensorSphere {
   /**
    * Adds a sensor to the sphere and recomputes the mass.
    * @param sensor - The sensor to add.
+   * @throws Error if sensor is null or undefined.
    */
   public addSensor(sensor: Sensor): void {
     if (!sensor) {
@@ -215,7 +234,7 @@ export class SensorSphere {
   /**
    * Sets the state of the sphere and optionally propagates it to its sensors.
    * @param state - The new state.
-   * @param propagateToSensors - If true, updates the state for all sensors.
+   * @param propagateToSensors - If true, updates the state for all sensors. Defaults to true.
    */
   public setState(
     state: SensorState,
@@ -277,7 +296,7 @@ export class SensorSphere {
 
   /**
    * Calculates and logs interactions between sensors in the sphere.
-   * This placeholder method logs debug information and is intended for future expansion.
+   * Placeholder for future expansion.
    */
   public calculateInteractions(): void {
     Logger.debug(

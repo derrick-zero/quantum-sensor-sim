@@ -1,8 +1,8 @@
 // Import simulation engine modules.
-import { SimulationEngine } from './src//SimulationEngine';
-import { SensorSphere } from './src//sensors/SensorSphere';
-import { Vector3 } from './src//core/Vector3';
-import { Sensor } from './src//sensors/Sensor';
+import { SimulationEngine } from './src/SimulationEngine';
+import { SensorSphere } from './src/sensors/SensorSphere';
+import { Sensor } from './src/sensors/Sensor';
+import { Vector3 } from './src/core/Vector3';
 
 // Import Three.js and OrbitControls from three-stdlib.
 import * as THREE from 'three';
@@ -10,7 +10,7 @@ import { OrbitControls } from 'three-stdlib';
 
 // Import lil-gui for real-time parameter control.
 import { GUI } from 'lil-gui';
-// import { Constants } from './src/core/Constants';
+//import { Constants } from './src/core/Constants';
 
 // =====================
 // Three.js Setup
@@ -46,13 +46,31 @@ window.addEventListener('resize', () => {
 });
 
 // =====================
+// HTML Overlay - Extended
+// =====================
+// Existing overlay for start/pause/time display.
+const overlay = document.getElementById('overlay');
+// Create a new div for displaying sensor charge info.
+const chargeDisplay = document.createElement('div');
+chargeDisplay.id = 'chargeDisplay';
+chargeDisplay.style.marginTop = '5px';
+chargeDisplay.style.fontSize = '14px';
+chargeDisplay.innerText = 'Average Charge: 0, Color: #FFFFFF';
+overlay?.appendChild(chargeDisplay);
+// Create a new debug overlay element appended to the existing overlay.
+const debugOverlay = document.createElement('div');
+debugOverlay.id = 'debugOverlay';
+debugOverlay.style.marginTop = '10px';
+debugOverlay.style.fontSize = '14px';
+debugOverlay.style.color = '#ffffff';
+document.getElementById('overlay')?.appendChild(debugOverlay);
+
+// =====================
 // Simulation Engine Setup
 // =====================
 
-// For this demo, we are using a single sensor sphere (the container) to simplify debugging.
+// For this demo, we are using a single sensor sphere (the container).
 const sensorSpheres: SensorSphere[] = [];
-
-// Create the container sensor sphere.
 const containerSphere = new SensorSphere(
   'Container',
   new Vector3(0, 0, 0),
@@ -61,23 +79,40 @@ const containerSphere = new SensorSphere(
 );
 sensorSpheres.push(containerSphere);
 
+// For visual testing, update a couple of sensor charges:
+if (containerSphere.sensors.length >= 2) {
+  containerSphere.sensors[0].charge = 5;
+  containerSphere.sensors[0].updateColor();
+  containerSphere.sensors[1].charge = -5;
+  containerSphere.sensors[1].updateColor();
+  // Update sphere state to recompute average and color.
+  containerSphere.update(0.1);
+}
+
 // Aggregate sensors from the container sphere.
 const allSensors: Sensor[] = containerSphere.sensors.slice();
 
 // Initialize the SimulationEngine with the aggregated sensors and sensor spheres.
 const engine = new SimulationEngine(allSensors, sensorSpheres, 0.05);
 
-// Update the engine's update loop to re-aggregate sensors from sensor spheres.
+// Update the engine's update loop to re-aggregate sensors after each update.
 const originalUpdate = engine.update.bind(engine);
 engine.update = function () {
   originalUpdate();
-  // Re-aggregate sensors in case sensor states have changed.
   this['sensors'] = this.sensorSpheres.reduce(
     (acc: Sensor[], sphere: SensorSphere) => acc.concat(sphere.sensors),
     []
   );
+  // Update the charge overlay with the container's average charge and color.
+  const avgCharge = (containerSphere as any)['computeAverageCharge']();
+  (
+    document.getElementById('chargeDisplay') as HTMLElement
+  ).innerText = `Average Charge: ${avgCharge.toFixed(2)}, Color: ${
+    containerSphere.color
+  }`;
 };
-// Expose key objects.
+
+// Expose key objects for integration/testing.
 (window as any).engine = engine;
 (window as any).sensorSpheres = sensorSpheres;
 (window as any).sensors = allSensors;
@@ -101,21 +136,40 @@ const engineControls = {
   reset: () => engine.reset(),
   randomize: () => engine.randomize(),
   toggleTime: () => engine.toggleTimeReversal(),
+  chargeOffset: 0, // New slider control for adjusting sensor charges.
 };
-
 const controlFolder = gui.addFolder('Engine Controls');
+
+// Add controls to the GUI folder:
 controlFolder.add(engineControls, 'reset').name('Reset Simulation');
 controlFolder.add(engineControls, 'randomize').name('Randomize Sensors');
 controlFolder.add(engineControls, 'toggleTime').name('Toggle Time Reversal');
 controlFolder
   .add(engineControls, 'impulseStrength', 0, 10)
   .name('Impulse Strength');
+
+// New GUI control: a toggle for reset behavior.
+controlFolder.add(engine, 'resetAndRestart').name('Reset & Restart');
+
+// New GUI control: slider for sensor charge offset.
+controlFolder
+  .add(engineControls, 'chargeOffset', -10, 10)
+  .name('Charge Offset')
+  .onChange((offset: number) => {
+    // Update every sensor in the container sphere with the new offset.
+    containerSphere.sensors.forEach(sensor => {
+      sensor.charge = offset;
+      sensor.updateColor();
+    });
+    // Force the sphere to update its overall color based on the new sensor charges.
+    containerSphere.update(0.1);
+  });
 controlFolder.open();
 
 // =====================
 // Visual Representation: Sensor Meshes
 // =====================
-// Create meshes for individual sensors using their dynamic properties.
+// Create meshes for individual sensors using sensor.color.
 const sensorMeshes = allSensors.map(sensor => {
   const geometry = new THREE.SphereGeometry(sensor.radius, 8, 8);
   const material = new THREE.MeshBasicMaterial({ color: sensor.color });
@@ -124,13 +178,11 @@ const sensorMeshes = allSensors.map(sensor => {
   return { id: sensor.id, mesh };
 });
 
-// Create meshes for sensor spheres.
-// Now, instead of using a fixed white color, we use each sphere's computed color.
-// We'll display them as semi-transparent filled spheres so that the color is clearly visible.
+// Create meshes for sensor spheres using sphere.color.
 const sensorSphereMeshes = sensorSpheres.map(sphere => {
   const geometry = new THREE.SphereGeometry(sphere.radius, 16, 16);
   const material = new THREE.MeshBasicMaterial({
-    color: sphere.color,
+    color: sphere.color, // Use the computed sphere color.
     transparent: true,
     opacity: 0.5,
   });
@@ -157,6 +209,7 @@ renderer.domElement.addEventListener('click', (event: MouseEvent) => {
   if (intersects.length > 0 && containerSphere) {
     const impulse = new Vector3(0, engineControls.impulseStrength, 0);
     containerSphere.applyImpulse(impulse);
+
     // eslint-disable-next-line no-console
     console.log(`Applied impulse ${impulse.toString()} to container sphere.`);
   }
@@ -165,12 +218,13 @@ renderer.domElement.addEventListener('click', (event: MouseEvent) => {
 // =====================
 // Main Animation Loop
 // =====================
+
+// In the animation loop, update the debug overlay.
 function animate(): void {
   requestAnimationFrame(animate);
-
   engine.update();
 
-  // Update sensor meshes positions.
+  // Update sensor mesh positions.
   allSensors.forEach(sensor => {
     const meshEntry = sensorMeshes.find(s => s.id === sensor.id);
     if (meshEntry) {
@@ -182,7 +236,7 @@ function animate(): void {
     }
   });
 
-  // Update sensor sphere meshes positions.
+  // Update sphere mesh positions and colors.
   sensorSphereMeshes.forEach(entry => {
     const sphereSim = sensorSpheres.find(s => s.id === entry.id);
     if (sphereSim) {
@@ -191,8 +245,19 @@ function animate(): void {
         sphereSim.center.y,
         sphereSim.center.z
       );
+      (entry.mesh.material as THREE.MeshBasicMaterial).color.set(
+        sphereSim.color
+      );
     }
   });
+
+  // Update debug overlay with current average sensor charge and sphere color.
+  const avgCharge =
+    containerSphere.sensors.reduce((sum, s) => sum + s.charge, 0) /
+    containerSphere.sensors.length;
+  debugOverlay.innerText = `Average Charge: ${avgCharge.toFixed(
+    2
+  )} | Sphere Color: ${containerSphere.color}`;
 
   controls.update();
   renderer.render(scene, camera);

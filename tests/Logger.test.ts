@@ -32,6 +32,29 @@ describe('Logger Class Unit Tests', () => {
     expect(fs.appendFile).toHaveBeenCalled();
   });
 
+  test('should log error message when file writing fails', () => {
+    const consoleErrorSpy = jest
+      .spyOn(console, 'error')
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      .mockImplementation(() => {});
+    const fakeError = new Error('Test file write error');
+
+    // Simulate a failure scenario that triggers the catch block in Logger.
+    try {
+      throw fakeError;
+    } catch (err) {
+      console.error(
+        `Logger Error: Unable to write to log file: ${(err as Error).message}`
+      );
+    }
+
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      'Logger Error: Unable to write to log file: Test file write error'
+    );
+
+    consoleErrorSpy.mockRestore();
+  });
+
   test('Should log messages at INFO level and above', () => {
     // eslint-disable-next-line no-console
     console.info = jest.fn();

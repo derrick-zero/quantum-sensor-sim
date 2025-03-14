@@ -199,6 +199,7 @@ describe('Sensor Class Unit Tests', () => {
   test('calculateForces should call Logger.debug for each other sensor', () => {
     const sensorA = new Sensor('A', new Vector3(), new Vector3(), 1, 5);
     const sensorB = new Sensor('B', new Vector3(), new Vector3(), 1, 5);
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     const debugSpy = jest.spyOn(Logger, 'debug').mockImplementation(() => {});
     sensorA.calculateForces([sensorB]);
     expect(debugSpy).toHaveBeenCalledWith(
@@ -214,6 +215,7 @@ describe('Sensor Class Unit Tests', () => {
     const debugSpy = jest.spyOn(Logger, 'debug').mockImplementation(() => {
       throw new Error('Test debug error');
     });
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     const errorSpy = jest.spyOn(Logger, 'error').mockImplementation(() => {});
     sensorA.calculateForces([sensorB]);
     expect(errorSpy).toHaveBeenCalledWith(

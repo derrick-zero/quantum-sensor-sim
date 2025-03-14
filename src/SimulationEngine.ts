@@ -13,15 +13,25 @@ export class SimulationEngine {
   private sensors: Sensor[];
   private sensorSpheres: SensorSphere[];
   public deltaTime: number; // Time step in seconds.
-  private running: boolean;
   public globalTime: number;
+  private running: boolean;
   private timeReversed: boolean;
+  public resetAndRestart: boolean = true;
 
   private initialSensorsState: Sensor[];
   private initialSensorSpheresState: SensorSphere[];
+  private loopTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
+  // Designated container: we'll use the first sensor sphere if available.
   public container: SensorSphere | null;
 
+  /**
+   * Constructs a new SimulationEngine.
+   * @param sensors - Array of sensors in the simulation.
+   * @param sensorSpheres - Array of sensor spheres.
+   * @param deltaTime - Time step for updates in seconds (must be > 0).
+   * @throws Error if deltaTime is not greater than zero.
+   */
   constructor(
     sensors: Sensor[] = [],
     sensorSpheres: SensorSphere[] = [],
@@ -38,6 +48,7 @@ export class SimulationEngine {
     this.timeReversed = false;
     this.container = sensorSpheres.length > 0 ? sensorSpheres[0] : null;
 
+    // Save initial state snapshots for reset functionality.
     this.initialSensorsState = sensors.map(s => this.cloneSensor(s));
     this.initialSensorSpheresState = sensorSpheres.map(ss =>
       this.cloneSensorSphere(ss)
@@ -65,17 +76,30 @@ export class SimulationEngine {
     );
   }
 
+  /**
+   * Starts the simulation engine.
+   */
   public start(): void {
     this.running = true;
     Logger.info('Starting simulation engine.', 'SimulationEngine.start');
     this.loop();
   }
 
+  /**
+   * Pauses the simulation engine.
+   */
   public pause(): void {
     this.running = false;
+    if (this.loopTimeoutId) {
+      clearTimeout(this.loopTimeoutId);
+      this.loopTimeoutId = null;
+    }
     Logger.info('Pausing simulation engine.', 'SimulationEngine.pause');
   }
 
+  /**
+   * Toggles time reversal. Inverts velocities of sensors and sensor spheres so that the simulation visually rewinds.
+   */
   public toggleTimeReversal(): void {
     this.timeReversed = !this.timeReversed;
     this.sensors.forEach(sensor => {
@@ -92,17 +116,51 @@ export class SimulationEngine {
     );
   }
 
+  /**
+   * Resets the simulation engine to its initial state and automatically restarts the simulation (if enabled).
+   * Global time is reset to zero, and sensors & sensor spheres are re-cloned from the initial snapshots.
+   * After resetting, if resetAndRestart is true, the simulation loop is restarted after a short delay.
+   */
   public reset(): void {
+    // Stop the simulation loop first.
+    this.pause();
+
+    // Reset global time.
     this.globalTime = 0;
+
+    // Re-clone sensors and sensor spheres from their initial snapshots.
     this.sensors = this.initialSensorsState.map(s => this.cloneSensor(s));
     this.sensorSpheres = this.initialSensorSpheresState.map(ss =>
       this.cloneSensorSphere(ss)
     );
+
+    // Re-establish the container.
     this.container =
       this.sensorSpheres.length > 0 ? this.sensorSpheres[0] : null;
-    Logger.info('Simulation has been reset.', 'SimulationEngine.reset');
+
+    if (this.resetAndRestart) {
+      // Immediately mark the simulation as running.
+      this.running = true;
+      // Schedule the simulation loop to resume on the next tick.
+      setTimeout(() => {
+        this.loop();
+      }, 0);
+      Logger.info(
+        'Simulation has been reset and restarted.',
+        'SimulationEngine.reset'
+      );
+    } else {
+      this.running = false;
+      Logger.info(
+        'Simulation has been reset and stopped.',
+        'SimulationEngine.reset'
+      );
+    }
   }
 
+  /**
+   * Randomizes sensor positions and velocities.
+   */
   public randomize(): void {
     this.sensors.forEach(sensor => {
       sensor.position = new Vector3(
@@ -119,19 +177,28 @@ export class SimulationEngine {
     Logger.info('Sensors have been randomized.', 'SimulationEngine.randomize');
   }
 
+  /**
+   * Updates the simulation by one time step.
+   * Global time is updated based on time reversal mode.
+   * Sensors and sensor spheres are updated, collision handling is processed, and container boundaries enforced.
+   * @throws Error if deltaTime <= 0.
+   */
   public update(): void {
     if (!this.running) return;
     if (this.deltaTime <= 0) {
       throw new Error('Delta time must be greater than zero.');
     }
 
+    // Determine effective time step based on time reversal.
     const step = this.timeReversed ? -this.deltaTime : this.deltaTime;
     this.globalTime += step;
     const dt = Math.abs(step);
 
+    // Update sensor spheres and sensors.
     this.sensorSpheres.forEach(sphere => sphere.update(dt));
     this.sensors.forEach(sensor => sensor.update(dt));
 
+    // Handle collisions and sensor-sphere interactions.
     this.handleSensorCollisions();
 
     for (let i = 0; i < this.sensorSpheres.length; i++) {
@@ -141,25 +208,40 @@ export class SimulationEngine {
       }
     }
 
+    // Enforce container boundaries if a container is defined.
     if (this.container !== null) {
-      const containerSphere: SensorSphere = this.container; // now containerSphere is not null
+      const containerSphere: SensorSphere = this.container;
       this.sensors.forEach(sensor => {
         this.handleContainerCollision(sensor, containerSphere);
       });
     }
-
     Logger.debug(
       `Simulation time: ${this.globalTime.toFixed(3)} s`,
       'SimulationEngine.update'
     );
   }
 
+  /**
+   * The main simulation loop. For smoother visuals, consider replacing setTimeout with requestAnimationFrame.
+   */
   private loop(): void {
     if (!this.running) return;
     this.update();
-    setTimeout(() => this.loop(), this.deltaTime * 1000);
+    this.loopTimeoutId = setTimeout(() => this.loop(), this.deltaTime * 1000);
+    // In Node, unref() prevents this timer from keeping the process alive.
+    if (
+      this.loopTimeoutId &&
+      typeof (this.loopTimeoutId as any).unref === 'function'
+    ) {
+      (this.loopTimeoutId as any).unref();
+    }
   }
 
+  /**
+   * Adds a sensor to the simulation.
+   * @param sensor - The sensor to add.
+   * @throws Error if sensor is null or undefined.
+   */
   public addSensor(sensor: Sensor): void {
     if (!sensor) {
       throw new Error('Sensor cannot be null or undefined.');
@@ -167,6 +249,11 @@ export class SimulationEngine {
     this.sensors.push(sensor);
   }
 
+  /**
+   * Adds a sensor sphere to the simulation.
+   * @param sphere - The sensor sphere to add.
+   * @throws Error if sphere is null or undefined.
+   */
   public addSensorSphere(sphere: SensorSphere): void {
     if (!sphere) {
       throw new Error('SensorSphere cannot be null or undefined.');
@@ -174,6 +261,9 @@ export class SimulationEngine {
     this.sensorSpheres.push(sphere);
   }
 
+  /**
+   * Handles collisions among individual sensors using a simple elastic collision model.
+   */
   private handleSensorCollisions(): void {
     for (let i = 0; i < this.sensors.length; i++) {
       for (let j = i + 1; j < this.sensors.length; j++) {
@@ -194,6 +284,13 @@ export class SimulationEngine {
     }
   }
 
+  /**
+   * Handles collision response between two sensors using a simple elastic collision model.
+   * @param sensor1 - The first sensor.
+   * @param sensor2 - The second sensor.
+   * @param distanceVector - The vector from sensor1 to sensor2.
+   * @param _distance - The distance between sensor centers.
+   */
   private handleCollision(
     sensor1: Sensor,
     sensor2: Sensor,
@@ -203,7 +300,7 @@ export class SimulationEngine {
     const normal = distanceVector.normalize();
     const relativeVelocity = sensor1.velocity.subtract(sensor2.velocity);
     const speed = relativeVelocity.dot(normal);
-    if (speed >= 0) return; // Sensors are separating; no collision response needed.
+    if (speed >= 0) return; // Sensors are separating.
 
     const totalMass = sensor1.mass + sensor2.mass;
     const impulse = (2 * speed) / totalMass;
@@ -221,6 +318,11 @@ export class SimulationEngine {
     );
   }
 
+  /**
+   * Checks a sensor against the container boundary and applies a reflective collision response.
+   * @param sensor - The sensor to check.
+   * @param container - The sensor sphere acting as a container.
+   */
   private handleContainerCollision(
     sensor: Sensor,
     container: SensorSphere
