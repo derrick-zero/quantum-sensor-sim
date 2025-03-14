@@ -36,7 +36,7 @@ This Code of Conduct applies within all project spaces, and also applies when an
 
 ## Enforcement
 
-Instances of unacceptable behavior may be reported by contacting the project team at [derrick.geiszler@gmail.com]. All complaints will be reviewed and investigated promptly and fairly.
+Instances of unacceptable behavior may be reported by contacting the project team at [derrick.geiszler@gmail.com](mailto:derrick.geiszler@gmail.com). All complaints will be reviewed and investigated promptly and fairly.
 
 The project team is obligated to maintain confidentiality with regard to the reporter of an incident. Further details of specific enforcement policies may be posted separately.
 
