@@ -82,5 +82,21 @@
     ]
   },
   "author": "Derrick Geiszler",
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/derrick-zero/quantum-sensor-sim.git"
+  },
+  "keywords": [
+    "3D",
+    "engine",
+    "game",
+    "physics",
+    "quantum",
+    "sensors",
+    "simulation",
+    "three.js",
+    "VR",
+    "web"
+  ]
 }

@@ -8,4 +8,5 @@ module.exports = {
     '!src/**/index.ts',
     '!src/**/integration/**',
   ],
+  verbose: true,
 };

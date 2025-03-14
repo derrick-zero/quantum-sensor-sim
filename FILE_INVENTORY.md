@@ -131,7 +131,7 @@
 ### Integration, Application, and Configuration Files
 
 87. [cypress/e2e/app.cy.ts](cypress/e2e/app.cy.ts)
-88. [src/app.ts](src/app.ts)
+88. [app.ts](app.ts)
 89. [index.html](index.html)
 90. [package.json](package.json)
 91. [tsconfig.json](tsconfig.json)
@@ -149,5 +149,5 @@
 98. [TECH_STACK.md](docs/TECH_STACK.md)
 99. [CONTRIBUTING.md](docs/CONTRIBUTING.md)
 100.  [FILE_INVENTORY.md](FILE_INVENTORY.md)
-101.  [ROADMAP.md](ROADMAP.md)
+101.  [ROADMAP.md](ROADMAP.mmd)
 102.  [LICENSE](LICENSE)

@@ -26,7 +26,7 @@ Quantum Sensor Sim provides a cutting-edge framework for simulating:
   - GUI controls to adjust and observe dynamic simulation parameters.
   - Debug overlay showing average sensor charge and computed colors.
 - **Robust Testing and Quality:**
-  - Over 98% test coverage using Jest and Cypress.
+  - Nearly 100% test coverage using Jest and Cypress.
   - Comprehensive unit and integration tests.
   - Continuous integration ensuring linting and type-quality.
 - **Reset & Restart Toggle:**
@@ -86,9 +86,27 @@ Quantum Sensor Sim provides a cutting-edge framework for simulating:
    npm install
    ```
 3. **Build the Project:**
+
    ```bash
    npm run build
    ```
+
+   - Pre-build step (automatic):
+
+   ```bash
+   npm run prebuild
+   ```
+
+   _clean build caches, format with Prettier, lint with ESLint, generate docs with TypeDoc_
+
+   - Post-build step (automatic):
+
+   ```bash
+   npm run postbuild
+   ```
+
+   _run automated tests_
+
 4. **Run Tests:**
    - Unit Tests:
      ```bash
@@ -97,10 +115,6 @@ Quantum Sensor Sim provides a cutting-edge framework for simulating:
    - End-to-End Tests (Cypress):
      ```bash
      npm run test:e2e
-     ```
-   - Linting:
-     ```bash
-     npm run lint
      ```
 
 ### Running the Visual Demo
@@ -128,7 +142,7 @@ When you open the demo, you will see:
 
 ## Contributing
 
-Contributions are welcome! Please see our [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on reporting issues, submitting pull requests, and our coding standards.
+Contributions are welcome! Please see our [CONTRIBUTING.md](./docs/CONTRIBUTING.md) for guidelines on reporting issues, submitting pull requests, and our coding standards.
 
 ## Roadmap
 

@@ -1,6 +1,11 @@
 # API Reference
 
-This document provides a reference for the utility functions available in the project. These functions perform common vector operations and other calculations used throughout the simulation.
+This document provides a reference for the utility functions available in the project. These functions primarily handle common vector operations and other math-based calculations that underpin the simulation engine.
+
+These utilities are widely used across the simulation system, including:
+
+- In physics calculations for sensors and sensor spheres.
+- To support continuous color mapping and other dynamic simulation features.
 
 ---
 
@@ -158,7 +163,14 @@ A new `Vector3` representing the projection of `vectorA` onto `vectorB`.
 
 ---
 
-### **Notes**
+### **Additional Notes**
 
-- All vector-related functions work with instances of `Vector3`.
-- The utility functions serve as building blocks for the simulation’s physics and can be extended as needed.
+- All functions operate on instances of `Vector3`.
+- These utility functions form the backbone of our simulation’s physics calculations.
+- They are designed to be efficient, reliable, and easy to extend.
+
+---
+
+## Future Extensions
+
+_As the project evolves, additional utility functions may be added to support new simulation features (such as advanced collision detection, color interpolation for sensors beyond HSL mapping, etc.)._

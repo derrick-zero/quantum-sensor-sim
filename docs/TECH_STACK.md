@@ -71,7 +71,6 @@ Our extension pack is organized into these groups:
 
 4. **Unity Specific Tools:**
 
-   - `Unity.unity-debug`
    - `visualstudiotoolsforunity.vstuc`
 
 5. **Version Control and Git:**

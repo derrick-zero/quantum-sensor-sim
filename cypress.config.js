@@ -1,11 +1,14 @@
 module.exports = {
   e2e: {
     baseUrl: 'http://localhost:1234',
-    specPattern: 'cypress/e2e/**/*.cy.{js,ts,jsx,tsx}', // Optionally narrow to .cy.
-    supportFile: false,
-    defaultCommandTimeout: 5000, // Optional: Increase if needed.
+    specPattern: 'cypress/e2e/**/*.cy.{js,ts,jsx,tsx}', // Adjust pattern as needed for spec files.
+    supportFile: false, // We're not using a support file; if needed, specify the path here.
+    defaultCommandTimeout: 5000, // Default timeout for commands; increase if tests are sometimes flaky.
+    // Optional: Disable video recording if not required.
+    video: false,
+
     env: {
-      // Add any environment variables you might need for tests.
+      // Environment variables for tests can be specified here.
       exampleVar: 'exampleValue',
     },
   },
