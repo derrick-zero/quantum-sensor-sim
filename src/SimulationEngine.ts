@@ -285,40 +285,6 @@ export class SimulationEngine {
   }
 
   /**
-   * Handles collision response between two sensors using a simple elastic collision model.
-   * @param sensor1 - The first sensor.
-   * @param sensor2 - The second sensor.
-   * @param distanceVector - The vector from sensor1 to sensor2.
-   * @param _distance - The distance between sensor centers.
-   */
-  private handleCollision(
-    sensor1: Sensor,
-    sensor2: Sensor,
-    distanceVector: Vector3,
-    _distance: number
-  ): void {
-    const normal = distanceVector.normalize();
-    const relativeVelocity = sensor1.velocity.subtract(sensor2.velocity);
-    const speed = relativeVelocity.dot(normal);
-    if (speed >= 0) return; // Sensors are separating.
-
-    const totalMass = sensor1.mass + sensor2.mass;
-    const impulse = (2 * speed) / totalMass;
-
-    sensor1.velocity = sensor1.velocity.subtract(
-      normal.multiplyScalar(impulse * sensor2.mass)
-    );
-    sensor2.velocity = sensor2.velocity.add(
-      normal.multiplyScalar(impulse * sensor1.mass)
-    );
-
-    Logger.debug(
-      `Collision handled between sensor ${sensor1.id} and sensor ${sensor2.id}.`,
-      'SimulationEngine.handleCollision'
-    );
-  }
-
-  /**
    * Checks a sensor against the container boundary and applies a reflective collision response.
    * @param sensor - The sensor to check.
    * @param container - The sensor sphere acting as a container.
@@ -342,5 +308,91 @@ export class SimulationEngine {
         'SimulationEngine.handleContainerCollision'
       );
     }
+  }
+
+  /**
+   * Handles collision response between two sensors using an impulse-based elastic collision model.
+   *
+   * **Conservation Principles:**
+   * - **Momentum Conservation:**
+   *   The impulse is computed so that the total momentum is preserved:
+   *     m₁·v₁ + m₂·v₂ = m₁·v₁' + m₂·v₂'
+   *
+   * - **Kinetic Energy Conservation:**
+   *   For a perfectly elastic collision, kinetic energy is conserved:
+   *     ½·m₁·v₁² + ½·m₂·v₂² = ½·m₁·v₁'² + ½·m₂·v₂'²
+   *
+   * **Performance Considerations:**
+   * This impulse-based method calculates the post-collision velocities in one step using the impulse formula,
+   * which is computationally efficient compared to iterative “brute-force” methods that adjust velocities incrementally
+   * until the conservation conditions are met. This one-pass approach is especially beneficial under high collision frequencies.
+   *
+   * @param sensor1 - The first sensor involved in the collision.
+   * @param sensor2 - The second sensor involved in the collision.
+   * @param distanceVector - The vector from sensor1 to sensor2.
+   * @param _distance - The distance between the centers of the two sensors.
+   *
+   * @remarks
+   * This method assumes perfectly elastic collisions. Any introduction of inelastic factors (energy loss, damping, etc.)
+   * would require modifying the impulse calculation accordingly.
+   */
+  private handleCollision(
+    sensor1: Sensor,
+    sensor2: Sensor,
+    distanceVector: Vector3,
+    _distance: number
+  ): void {
+    const normal = distanceVector.normalize();
+    const relativeVelocity = sensor1.velocity.subtract(sensor2.velocity);
+    const speed = relativeVelocity.dot(normal);
+
+    // If the sensors are separating, no need to record an event.
+    if (speed >= 0) return;
+
+    const totalMass = sensor1.mass + sensor2.mass;
+    const impulse = (2 * speed) / totalMass;
+
+    // Calculate pre-collision metrics
+    const preMomentum = sensor1.velocity
+      .multiplyScalar(sensor1.mass)
+      .add(sensor2.velocity.multiplyScalar(sensor2.mass))
+      .magnitude();
+    const preEnergy =
+      0.5 * sensor1.mass * sensor1.velocity.magnitude() ** 2 +
+      0.5 * sensor2.mass * sensor2.velocity.magnitude() ** 2;
+
+    // Update sensor velocities (impulse-based calculation)
+    sensor1.velocity = sensor1.velocity.subtract(
+      normal.multiplyScalar(impulse * sensor2.mass)
+    );
+    sensor2.velocity = sensor2.velocity.add(
+      normal.multiplyScalar(impulse * sensor1.mass)
+    );
+
+    // Calculate post-collision metrics
+    const postMomentum = sensor1.velocity
+      .multiplyScalar(sensor1.mass)
+      .add(sensor2.velocity.multiplyScalar(sensor2.mass))
+      .magnitude();
+    const postEnergy =
+      0.5 * sensor1.mass * sensor1.velocity.magnitude() ** 2 +
+      0.5 * sensor2.mass * sensor2.velocity.magnitude() ** 2;
+
+    // Log debug info (existing functionality)
+    Logger.debug(
+      `Collision handled between sensor ${sensor1.id} and sensor ${sensor2.id}.`,
+      'SimulationEngine.handleCollision'
+    );
+
+    // Record the collision event.
+    Logger.recordEvent({
+      timestamp: Date.now(),
+      event: 'collision',
+      sensorIds: [sensor1.id, sensor2.id],
+      preMomentum,
+      postMomentum,
+      preEnergy,
+      postEnergy,
+    });
   }
 }

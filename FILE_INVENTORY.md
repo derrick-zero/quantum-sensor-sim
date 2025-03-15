@@ -99,7 +99,7 @@
 
 ---
 
-### Integration, Advanced Physics, and Other Modules
+### Advanced Physics, and Other Modules
 
 63. [src/plasma_physics/DebyeShielding.ts](src/plasma_physics/DebyeShielding.ts)
 64. [tests/DebyeShielding.test.ts](tests/DebyeShielding.test.ts)
@@ -128,26 +128,37 @@
 
 ---
 
+### Utility Modules
+
+87. [src/utils/collisionAlternatives.ts](src/utils/collisionAlternatives.ts)
+88. [tests/collisionBenchmark.test.ts](tests/collisionBenchmark.test.ts)
+89. [tests/collisionComparison.test.ts](tests/collisionComparison.test.ts)
+90. [src/utils/runLog.ts](src/utils/runLog.ts)
+91. [src/utils/runLogTypes.ts](src/utils/runLogTypes.ts)
+92. [tests/runLog.test.ts](tests/runLog.test.ts)
+
+---
+
 ### Integration, Application, and Configuration Files
 
-87. [cypress/e2e/app.cy.ts](cypress/e2e/app.cy.ts)
-88. [app.ts](app.ts)
-89. [index.html](index.html)
-90. [package.json](package.json)
-91. [tsconfig.json](tsconfig.json)
-92. [cypress.config.js](cypress.config.js)
-93. [.gitignore](.gitignore)
-94. [.eslintignore](.eslintignore)
-95. [QuantumSensorSim.code-workspace](QuantumSensorSim.code-workspace)
+93. [index.html](index.html)
+94. [app.ts](app.ts)
+95. [cypress/e2e/app.cy.ts](cypress/e2e/app.cy.ts)
+96. [package.json](package.json)
+97. [tsconfig.json](tsconfig.json)
+98. [cypress.config.js](cypress.config.js)
+99. [.gitignore](.gitignore)
+100.  [.eslintignore](.eslintignore)
+101.  [QuantumSensorSim.code-workspace](QuantumSensorSim.code-workspace)
 
 ---
 
 ### Documentation and Project Metadata
 
-96. [README.md](README.md)
-97. [API_REFERENCE.md](docs/API_REFERENCE.md)
-98. [TECH_STACK.md](docs/TECH_STACK.md)
-99. [CONTRIBUTING.md](docs/CONTRIBUTING.md)
-100.  [FILE_INVENTORY.md](FILE_INVENTORY.md)
-101.  [ROADMAP.md](ROADMAP.mmd)
-102.  [LICENSE](LICENSE)
+102. [README.md](README.md)
+103. [API_REFERENCE.md](docs/API_REFERENCE.md)
+104. [TECH_STACK.md](docs/TECH_STACK.md)
+105. [CONTRIBUTING.md](docs/CONTRIBUTING.md)
+106. [FILE_INVENTORY.md](FILE_INVENTORY.md)
+107. [ROADMAP.mmd](ROADMAP.mmd)
+108. [LICENSE](LICENSE)

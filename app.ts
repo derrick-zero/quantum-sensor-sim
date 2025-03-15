@@ -3,6 +3,7 @@ import { SimulationEngine } from './src/SimulationEngine';
 import { SensorSphere } from './src/sensors/SensorSphere';
 import { Sensor } from './src/sensors/Sensor';
 import { Vector3 } from './src/core/Vector3';
+import { Logger } from './src/core/Logger';
 
 // Import Three.js and OrbitControls from three-stdlib.
 import * as THREE from 'three';
@@ -10,7 +11,6 @@ import { OrbitControls } from 'three-stdlib';
 
 // Import lil-gui for real-time parameter control.
 import { GUI } from 'lil-gui';
-//import { Constants } from './src/core/Constants';
 
 // =====================
 // Three.js Setup
@@ -110,6 +110,8 @@ engine.update = function () {
   ).innerText = `Average Charge: ${avgCharge.toFixed(2)}, Color: ${
     containerSphere.color
   }`;
+  const debugSummary = Logger.getRunLogSummary();
+  document.getElementById('chargeDisplay')!.innerText += ` | ${debugSummary}`;
 };
 
 // Expose key objects for integration/testing.

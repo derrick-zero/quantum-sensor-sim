@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import { RunEvent } from '../utils/runLogTypes';
 
 /**
  * Enumeration for logging levels.
@@ -32,6 +33,9 @@ export class Logger {
     logToFile: false,
     logFilePath: 'simulation.log',
   };
+
+  // A run log array to store simulation events.
+  public static runLog: RunEvent[] = [];
 
   /**
    * Configures the logger settings.
@@ -75,6 +79,29 @@ export class Logger {
    */
   public static error(message: string, context?: string): void {
     this.log(LogLevel.ERROR, message, context);
+  }
+
+  /**
+   * Records a run event.
+   * @param event The event to record.
+   */
+  public static recordEvent(event: RunEvent): void {
+    Logger.runLog.push(event);
+    // Optionally log the event for debugging:
+    console.debug(`RunEvent Recorded: ${JSON.stringify(event)}`);
+  }
+
+  // You could add a method to clear the run log, or to export it as JSON:
+  public static clearRunLog(): void {
+    Logger.runLog = [];
+  }
+
+  public static getRunLogSummary(): string {
+    // Example: return a simple summary of how many collision events were recorded.
+    const collisionCount = Logger.runLog.filter(
+      e => e.event === 'collision'
+    ).length;
+    return `Total collisions: ${collisionCount}`;
   }
 
   /**
