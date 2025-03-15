@@ -22,5 +22,6 @@ module.exports = {
     },
   },
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'], // Setup file run after the environment is set up.
+  testSequencer: './testSequencer.js',
   verbose: true,
 };

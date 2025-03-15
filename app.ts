@@ -57,13 +57,14 @@ chargeDisplay.style.marginTop = '5px';
 chargeDisplay.style.fontSize = '14px';
 chargeDisplay.innerText = 'Average Charge: 0, Color: #FFFFFF';
 overlay?.appendChild(chargeDisplay);
-// Create a new debug overlay element appended to the existing overlay.
-const debugOverlay = document.createElement('div');
-debugOverlay.id = 'debugOverlay';
-debugOverlay.style.marginTop = '10px';
-debugOverlay.style.fontSize = '14px';
-debugOverlay.style.color = '#ffffff';
-document.getElementById('overlay')?.appendChild(debugOverlay);
+// Create a new debug overlay for sensor sphere network metrics.
+const networkDebugOverlay = document.createElement('div');
+networkDebugOverlay.id = 'networkDebugOverlay';
+networkDebugOverlay.style.marginTop = '10px';
+networkDebugOverlay.style.fontSize = '14px';
+networkDebugOverlay.style.color = '#FFF';
+networkDebugOverlay.innerText = 'Active Spheres: 0 | Total Interactions: 0';
+overlay?.appendChild(networkDebugOverlay);
 
 // =====================
 // Simulation Engine Setup
@@ -111,6 +112,7 @@ engine.update = function () {
     containerSphere.color
   }`;
   const debugSummary = Logger.getRunLogSummary();
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   document.getElementById('chargeDisplay')!.innerText += ` | ${debugSummary}`;
 };
 
@@ -206,7 +208,11 @@ renderer.domElement.addEventListener('click', (event: MouseEvent) => {
   const intersects = raycaster.intersectObject(sensorSphereMeshes[0].mesh);
   if (intersects.length > 0 && containerSphere) {
     const impulse = new Vector3(0, engineControls.impulseStrength, 0);
-    containerSphere.applyImpulse(impulse);
+    if (engine.isTimeReversed()) {
+      containerSphere.applyImpulse(impulse.multiplyScalar(-1));
+    } else {
+      containerSphere.applyImpulse(impulse);
+    }
 
     // eslint-disable-next-line no-console
     console.log(`Applied impulse ${impulse.toString()} to container sphere.`);
@@ -216,6 +222,10 @@ renderer.domElement.addEventListener('click', (event: MouseEvent) => {
 // =====================
 // Main Animation Loop
 // =====================
+
+const sphereNetwork = {
+  getSpheres: () => sensorSpheres,
+};
 
 // In the animation loop, update the debug overlay.
 function animate(): void {
@@ -250,12 +260,17 @@ function animate(): void {
   });
 
   // Update debug overlay with current average sensor charge and sphere color.
+  const sphereCount = sphereNetwork.getSpheres().length;
+
   const avgCharge =
-    containerSphere.sensors.reduce((sum, s) => sum + s.charge, 0) /
-    containerSphere.sensors.length;
-  debugOverlay.innerText = `Average Charge: ${avgCharge.toFixed(
+    containerSphere.sensors.reduce((sum, s) => sum + s.charge, 0) / sphereCount;
+
+  // Update debug overlay for simulation time and sensor sphere network.
+  // For now, we'll use a simple metric: the number of sensor spheres.
+  // Extend this later to calculate total interaction forces if desired.
+  networkDebugOverlay.innerText = `Active Spheres: ${sphereCount} | Total Interactions: TBD | Avg Charge: ${avgCharge.toFixed(
     2
-  )} | Sphere Color: ${containerSphere.color}`;
+  )}`;
 
   controls.update();
   renderer.render(scene, camera);

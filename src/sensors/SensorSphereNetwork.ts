@@ -1,8 +1,9 @@
+// src/sensors/SensorSphereNetwork.ts
+
 import { SensorSphere } from './SensorSphere';
-// import { Vector3 } from '../core/Vector3';
-import { SensorState } from './SensorState';
+import { Constants } from '../core/Constants';
 import { Logger } from '../core/Logger';
-// import { Constants } from '../core/Constants';
+import { SensorState } from './SensorState';
 
 /**
  * Represents a network of sensor spheres.
@@ -51,6 +52,13 @@ export class SensorSphereNetwork {
   }
 
   /**
+   * Returns the list of sensor spheres in the network.
+   */
+  public getSpheres(): SensorSphere[] {
+    return this.spheres;
+  }
+
+  /**
    * Updates all sensor spheres in the network.
    * Calls each sphere's update method with the provided delta time.
    * @param deltaTime - Time step in seconds; must be > 0.
@@ -62,6 +70,59 @@ export class SensorSphereNetwork {
     }
     for (const sphere of this.spheres) {
       sphere.update(deltaTime);
+    }
+  }
+
+  /**
+   * Updates inter-sphere interactions for all sensor sphere pairs.
+   * This method calculates forces (e.g., gravitational-like attraction) between every pair of spheres
+   * and applies an acceleration update to each sphere accordingly.
+   *
+   * Here, we simulate a simple gravitational attraction between spheres:
+   *   F = G * (m1 * m2) / (distance^2)
+   *
+   * The resulting force is then converted to an acceleration (F/m), and applied to update the velocity.
+   *
+   * @param _deltaTime The simulation time step in seconds.
+   */
+  public updateInteractions(_deltaTime: number): void {
+    const n = this.spheres.length;
+    // Iterate through each unique pair (i, j)
+    for (let i = 0; i < n; i++) {
+      for (let j = i + 1; j < n; j++) {
+        const sphereA = this.spheres[i];
+        const sphereB = this.spheres[j];
+
+        // Calculate vector between sphere centers and its magnitude.
+        const direction = sphereB.center.subtract(sphereA.center);
+        const distance = direction.magnitude();
+
+        // Avoid division by zero and ignore interactions if spheres overlap too much.
+        if (distance <= 0.001) continue;
+
+        // Compute a gravitational-like force between the spheres.
+        const forceMagnitude =
+          (Constants.GRAVITATIONAL_CONSTANT * sphereA.mass * sphereB.mass) /
+          (distance * distance);
+        // Convert force to acceleration (F/m)
+        const accelerationA = direction
+          .normalize()
+          .multiplyScalar(forceMagnitude / sphereA.mass);
+        const accelerationB = direction
+          .normalize()
+          .multiplyScalar(-forceMagnitude / sphereB.mass);
+
+        // Update accelerations for spheres.
+        sphereA.acceleration = sphereA.acceleration.add(accelerationA);
+        sphereB.acceleration = sphereB.acceleration.add(accelerationB);
+
+        Logger.debug(
+          `Inter-sphere force: ${forceMagnitude.toExponential(
+            2
+          )} N applied between ${sphereA.id} and ${sphereB.id}.`,
+          'SensorSphereNetwork.updateInteractions'
+        );
+      }
     }
   }
 
@@ -95,6 +156,7 @@ export class SensorSphereNetwork {
    */
   public calculateInteractions(): void {
     for (let i = 0; i < this.spheres.length; i++) {
+      if (i >= this.spheres.length) break;
       for (let j = i + 1; j < this.spheres.length; j++) {
         const sphereA = this.spheres[i];
         const sphereB = this.spheres[j];

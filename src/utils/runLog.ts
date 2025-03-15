@@ -1,9 +1,0 @@
-export interface RunEvent {
-  timestamp: number;
-  event: 'collision' | 'impulse' | 'energyTransfer';
-  sensorIds: string[];
-  preMomentum?: number;
-  postMomentum?: number;
-  preEnergy?: number;
-  postEnergy?: number;
-}

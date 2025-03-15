@@ -52,7 +52,7 @@ describe('Run Log Recording', () => {
       Logger.recordEvent({
         timestamp: Date.now(),
         event: 'collision',
-        sensorIds: [sensor1.id, sensor2.id],
+        sensors: [sensor1, sensor2],
         preMomentum: 123, // dummy value
         postMomentum: 123, // dummy value
         preEnergy: 456, // dummy value

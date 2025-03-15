@@ -1,6 +1,7 @@
 import { Sensor } from './sensors/Sensor';
 import { SensorSphere } from './sensors/SensorSphere';
 import { Logger } from './core/Logger';
+import { SensorSphereNetwork } from './sensors/SensorSphereNetwork';
 import { Constants } from './core/Constants';
 import { Vector3 } from './core/Vector3';
 
@@ -12,6 +13,7 @@ import { Vector3 } from './core/Vector3';
 export class SimulationEngine {
   private sensors: Sensor[];
   private sensorSpheres: SensorSphere[];
+  private sphereNetwork = new SensorSphereNetwork();
   public deltaTime: number; // Time step in seconds.
   public globalTime: number;
   private running: boolean;
@@ -53,27 +55,8 @@ export class SimulationEngine {
     this.initialSensorSpheresState = sensorSpheres.map(ss =>
       this.cloneSensorSphere(ss)
     );
-  }
 
-  private cloneSensor(sensor: Sensor): Sensor {
-    return new Sensor(
-      sensor.id,
-      sensor.position.clone(),
-      sensor.velocity.clone(),
-      sensor.mass,
-      sensor.charge,
-      sensor.state
-    );
-  }
-
-  private cloneSensorSphere(sphere: SensorSphere): SensorSphere {
-    return new SensorSphere(
-      sphere.id,
-      sphere.center.clone(),
-      sphere.radius,
-      sphere.sensors.length,
-      sphere.state
-    );
+    sensorSpheres.forEach(s => this.sphereNetwork.addSphere(s));
   }
 
   /**
@@ -125,9 +108,6 @@ export class SimulationEngine {
     // Stop the simulation loop first.
     this.pause();
 
-    // Reset global time.
-    this.globalTime = 0;
-
     // Re-clone sensors and sensor spheres from their initial snapshots.
     this.sensors = this.initialSensorsState.map(s => this.cloneSensor(s));
     this.sensorSpheres = this.initialSensorSpheresState.map(ss =>
@@ -156,6 +136,9 @@ export class SimulationEngine {
         'SimulationEngine.reset'
       );
     }
+
+    // Reset global time.
+    this.globalTime = 0;
   }
 
   /**
@@ -188,6 +171,9 @@ export class SimulationEngine {
     if (this.deltaTime <= 0) {
       throw new Error('Delta time must be greater than zero.');
     }
+
+    // Update inter-sphere interactions.
+    this.sphereNetwork.updateInteractions(this.deltaTime);
 
     // Determine effective time step based on time reversal.
     const step = this.timeReversed ? -this.deltaTime : this.deltaTime;
@@ -388,11 +374,46 @@ export class SimulationEngine {
     Logger.recordEvent({
       timestamp: Date.now(),
       event: 'collision',
-      sensorIds: [sensor1.id, sensor2.id],
+      sensors: [sensor1, sensor2],
       preMomentum,
       postMomentum,
       preEnergy,
       postEnergy,
     });
+  }
+
+  /**
+   * Clones a sensor object.
+   */
+  private cloneSensor(sensor: Sensor): Sensor {
+    return new Sensor(
+      sensor.id,
+      sensor.position.clone(),
+      sensor.velocity.clone(),
+      sensor.mass,
+      sensor.charge,
+      sensor.state
+    );
+  }
+
+  /**
+   * Clones a sensor sphere object.
+   */
+  private cloneSensorSphere(sphere: SensorSphere): SensorSphere {
+    return new SensorSphere(
+      sphere.id,
+      sphere.center.clone(),
+      sphere.radius,
+      sphere.sensors.length,
+      sphere.state
+    );
+  }
+
+  /**
+   * Determines if the simulation is running in reverse time.
+   * @returns True if the simulation is running in reverse time; false otherwise.
+   */
+  public isTimeReversed(): boolean {
+    return this.timeReversed;
   }
 }

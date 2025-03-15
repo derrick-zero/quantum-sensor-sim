@@ -234,6 +234,20 @@ export const Constants = {
    * Represents 2π, useful in trigonometric calculations.
    */
   TWO_PI: Math.PI * 2,
+
+  /* ============================ Benchmark Constants ============================ */
+  /**
+   * Number of Collisions to Benchmark.
+   */
+  BENCHMARK_EVENTS: 2097152,
+  /**
+   * Number of Sensors per Sphere to Benchmark.
+   */
+  BENCHMARK_SENSORS_PER_SPHERE: 8192,
+  /**
+   * Number of Network Spheres to Benchmark.
+   */
+  BENCHMARK_NETWORK_SPHERES: 6,
 };
 
 export type ConstantsType = typeof Constants;

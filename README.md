@@ -1,13 +1,6 @@
 # Quantum Sensor Sim
 
-<div style="display: flex; align-items: center;">
-  <div style="flex: 1;">
-    Quantum Sensor Sim is a comprehensive simulation platform designed to model various physical phenomena using sensors. It simulates individual sensor dynamics, hierarchical sensor spheres and networks, and provides a foundation for exploring emergent behaviors through advanced physics and visualization techniques.
-  </div>
-  <div style="padding: 24px; border: 1px solid #ddd; border-radius: 96px; background: #fff;">
-    <img src="sensorSphere.png" alt="sensorSphere" width="96" height="96">
-  </div>
-</div>
+Quantum Sensor Sim is a comprehensive simulation platform designed to model various physical phenomena using sensors. It simulates individual sensor dynamics, hierarchical sensor spheres and networks, and provides a foundation for exploring emergent behaviors through advanced physics and visualization techniques.
 
 ## Overview
 
@@ -186,5 +179,3 @@ This project is licensed under the [MIT License](LICENSE).
 ## Contact
 
 For questions or suggestions, please open a GitHub issue or contact [derrick.geiszler@gmail.com](mailto:derrick.geiszler@gmail.com).
-
-[sensorSphere]: sensorSphere.png

@@ -88,6 +88,7 @@ export class Logger {
   public static recordEvent(event: RunEvent): void {
     Logger.runLog.push(event);
     // Optionally log the event for debugging:
+    // eslint-disable-next-line no-console
     console.debug(`RunEvent Recorded: ${JSON.stringify(event)}`);
   }
 
